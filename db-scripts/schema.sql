@@ -1,4 +1,3 @@
-
 -- database already exists
 
 \c :dbname 
@@ -68,32 +67,40 @@ CREATE TABLE IF NOT EXISTS Costumer(
 	nome SmallVar NOT NULL,
 	cognome SmallVar NOT NULL,
 	email SmallVar NOT NULL,
-	indirizzo Indirizzo NOT NULL);
+	indirizzo Indirizzo NOT NULL
+);
 	
-
 	
-CREATE TABLE IF NOT EXISTS Azienda(
+CREATE TABLE IF NOT EXISTS Produttore(
 	id serial PRIMARY KEY,
-	RagioneSociale MediumVar NOT NULL,
-	sede indirizzo NOT NULL);
+	ragioneSociale MediumVar NOT NULL,
+	sede indirizzo NOT NULL 
+);
 	
-
-CREATE TABLE IF NOT EXISTS Produttore();
-	
-CREATE TABLE IF NOT EXISTS Trasportatore();
+CREATE TABLE IF NOT EXISTS Trasportatore(
+	id serial PRIMARY KEY,
+	ragioneSociale MediumVar NOT NULL,
+	sede indirizzo NOT NULL 
+);
 	
 CREATE TABLE IF NOT EXISTS Prodotto(
 	id serial PRIMARY KEY,
 	nome SmallVar NOT NULL,
 	descrizione LargeVar,
-	prezzo Prezzo NOT NULL);
+	prezzo Prezzo NOT NULL
+);
 	
 CREATE TABLE IF NOT EXISTS Acquisto(
-	costumer int
-	prodotto int);
-	
-	
-	 
- 
-
-
+	id serial PRIMARY KEY,
+	istante TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+	costumer int NOT NULL,
+	prodotto int NOT NULL,
+	trasportatore int NOT NULL,
+	consegnato bool NOT NULL,
+	istConsegna TIMESTAMP, 
+	FOREIGN KEY(costumer) REFERENCES Costumer(id),
+	FOREIGN KEY(prodotto) REFERENCES Prodotto(id),
+	FOREIGN KEY(trasportatore) REFERENCES Trasportatore(id),
+	CONSTRAINT check_istante CHECK ( istante < istConsegna ),
+	CONSTRAINT check_isConsegnato CHECK (( consegato = true AND istConsegna is NOT NULL ) OR ( consegnato = false ))
+);
