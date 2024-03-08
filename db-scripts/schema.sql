@@ -8,10 +8,11 @@
 create domain TimePoint as timestamp ;
 -- create domain TimePoint as timestamp with time zone;
 
-
-CREATE DOMAIN  SmallVar AS VARCHAR(30) ;
-CREATE DOMAIN  MediumVar as VARCHAR(200) ;
-CREATE DOMAIN  LargeVar as VARCHAR(2000) ;
+CREATE DOMAIN String4Info AS VARCHAR(2000);
+CREATE DOMAIN String4VarName AS VARCHAR(2000);
+CREATE DOMAIN SmallVar AS VARCHAR(30) ;
+CREATE DOMAIN MediumVar as VARCHAR(200) ;
+CREATE DOMAIN LargeVar as VARCHAR(2000) ;
 -- create domain VarChar with different length
 
 
@@ -19,11 +20,11 @@ CREATE DOMAIN IntegerGtz as Integer check(value >0);
 CREATE DOMAIN Valuta as VARCHAR(3);
 CREATE DOMAIN CAP as VARCHAR(5);
 
-CREATE TYPE Prezzo (
+CREATE TYPE Prezzo AS (
 	Valuta valuta,
 	Cifra IntegerGtz);
 	
-CREATE TYPE Indirizzo(
+CREATE TYPE Indirizzo AS (
 	Via MediumVar,
 	Civico SmallVar,
 	CAP CAP);
@@ -102,5 +103,5 @@ CREATE TABLE IF NOT EXISTS Acquisto(
 	FOREIGN KEY(prodotto) REFERENCES Prodotto(id),
 	FOREIGN KEY(trasportatore) REFERENCES Trasportatore(id),
 	CONSTRAINT check_istante CHECK ( istante < istConsegna ),
-	CONSTRAINT check_isConsegnato CHECK (( consegato = true AND istConsegna is NOT NULL ) OR ( consegnato = false ))
+	CONSTRAINT check_isConsegnato CHECK (( consegnato = true AND istConsegna is NOT NULL ) OR ( consegnato = false ))
 );
