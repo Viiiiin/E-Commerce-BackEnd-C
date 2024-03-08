@@ -34,7 +34,7 @@ Con2DB db1("localhost", "5432", "ecommerce", "47002", "db_ecommerce");
  printf(
 "Format: time step, global time in second, elapsed time in sec, present time in nanoseconds, variable, value\n");
 
- init_logdb(db1);
+
 
  sprintf(sqlcmd,"SELECT table_name FROM information_schema.tables WHERE table_schema ='public'");
  res = db1.ExecSQLtuples(sqlcmd);
