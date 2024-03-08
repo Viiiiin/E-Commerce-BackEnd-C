@@ -44,6 +44,20 @@ Con2DB db1("localhost", "5432", "ecommerce", "47002", "db_ecommerce");
   std::cout << PQgetvalue(res,i,0) << std::endl;
  }
  PQclear(res);
+
+ sprintf(sqlcmd,"INSERT INTO Produttore (ragioneSociale, sede) VALUES ('ENTRA!!!!', ROW('123 Main Street', '1A', '12345'));");
+ res = db1.ExecSQLcmd(sqlcmd);
+ std::cout << PQresultStatus(res) << std::endl;
+ PQclear(res);
+
+ sprintf(sqlcmd,"SELECT ragioneSociale FROM Produttore");
+ res = db1.ExecSQLtuples(sqlcmd);
+ rows=PQntuples(res);
+
+ for (int i=0; i<rows; ++i){
+  std::cout << PQgetvalue(res,i,0) << std::endl;
+ }
+ PQclear(res);
 }  /*  main()  */
 
 
