@@ -1,18 +1,20 @@
-#ifndef serverT.h
-#define serverT.h
-#include "../../con2db/pgsql.h"
+#ifndef serverT_h
+#define serverT_h
 
-#define READ_STREAM = "stream2"
-#define WRITE_STREAM = "stream1"
+#include "con2redis.h"
 
 class ServerT {
     public: 
-        ServerT( const char *nome );
+        ServerT( const char *nome);
+
+        char *readCommandRedis(int block);
+
     private: 
         redisContext *c2r;
-        redisReply *reply;  
-        Con2DB db;
-}
+        const char *nome;
+        const char *WRITE_STREAM;
+        const char *READ_STREAM;
+};
 
 
 
