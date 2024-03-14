@@ -1,20 +1,21 @@
-#ifndef trasportatore.h
-#define trasportatore.h
+#ifndef trasportatore_h
+#define trasportatore_h
 
-#define READ_STREAM = "stream1"
-#define WRITE_STREAM = "stream2"
+#include "con2redis.h"
+
+
 
 class Trasportatore {
     public: 
         Trasportatore(
             const int id,
-            const char *ragioneSociale,
-            const Indirizzo indirizzo 
+            const char *ragioneSociale
         ); 
     private: 
         redisContext *c2r;
-        redisReply *reply; 
-}
+        const char *READ_STREAM;
+        const char *WRITE_STREAM;
+};
 
 
 
