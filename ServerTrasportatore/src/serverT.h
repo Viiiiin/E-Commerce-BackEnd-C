@@ -2,20 +2,20 @@
 #define serverT_h
 
 #include "con2redis.h"
+#include "pgsql.h" // Include the header file for con2DB
 
 class ServerT {
-    public: 
-        ServerT( const char *nome);
+public: 
+    ServerT(const char *nome);
 
-        char *readCommandRedis(int block);
+    char *readCommandRedis(int block);
 
-    private: 
-        redisContext *c2r;
-        const char *nome;
-        const char *WRITE_STREAM;
-        const char *READ_STREAM;
+private: 
+    redisContext *c2r;
+    Con2DB *c2db; // Declare a member for con2DB
+    const char *nome;
+    const char *WRITE_STREAM;
+    const char *READ_STREAM;
 };
-
-
 
 #endif
