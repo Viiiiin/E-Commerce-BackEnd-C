@@ -16,7 +16,7 @@ OBJ = $(patsubst %.cpp, $(ODIR)/%.o, $(SRC))
 
 # Object files for con2redis and con2db
 con2redis_OBJ=$(wildcard ../../con2redis/obj/*.o)
-con2db_OBJ=$(wildcard ../../con2db*.o)
+con2db_OBJ=$(wildcard ../../con2db/*.o)
 
 # Targets
 all: con2redis con2db $(BDIR)/main
