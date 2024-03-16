@@ -12,7 +12,7 @@ public:
 
 private: 
     redisContext *c2r;
-    Con2DB *c2db; // Declare a member for con2DB
+    Con2DB *db; // Declare a member for con2DB
     const char *nome;
     const char *WRITE_STREAM;
     const char *READ_STREAM;
