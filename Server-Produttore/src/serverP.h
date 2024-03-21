@@ -1,0 +1,32 @@
+#ifndef serverP_h
+#define serverP_h
+
+#include "con2redis.h"
+#include "pgsql.h" // Include the header file for con2DB
+#include "../../global.h"
+#include <string>
+
+using namespace std;
+
+
+class ServerP {
+    public:
+        ServerP(const char *nome);
+
+        // Legge l' ultimo messaggio  inviato da client e ne ricava il comando
+        char* readCommandRedis(int block);
+
+        // Legge le caratteristiche del prodotto da redis e salva prodotto nel database
+        void inserisciProdotto(int block);
+   
+    private: 
+        const char *nome;
+        redisContext *c2r;
+        Con2DB *db;
+        const char *READ_STREAM;
+        const char *WRITE_STREAM;
+};
+
+
+
+#endif
