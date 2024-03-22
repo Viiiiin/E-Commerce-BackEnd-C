@@ -31,7 +31,7 @@ void Produttore::inserisciProdotto(char *nome, char *descrizione){
 
    
 
-    reply= RedisCommand(this->c2r, "XADD %s * %s %s %s %s %s %s %s %s",this->WRITE_STREAM, key0, "Inserisci", key1, nome, key2, descrizione);
+    reply= RedisCommand(this->c2r, "XADD %s * %s %s %s %s %s %s",this->WRITE_STREAM, key0, "Inserisci", key1, nome, key2, descrizione);
 
     assertReplyType(this->c2r,reply,REDIS_REPLY_STRING);
 
