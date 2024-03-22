@@ -2,17 +2,16 @@
 /*If you have a stream and multiple clients, and you want the stream to be partitioned or sharded across your clients, 
 so that each client will get a sub set of the messages arriving in a stream, you need a consumer group.*/
 #include "serverP.h"
-
+using namespace std;
 
 ServerP:: ServerP ( const char *nome
 )
 
 { 
     this->nome = nome;
-    this->READ_STREAM = "stream2_produttore_2";
+    this->READ_STREAM = "stream_produttore_2";
     this->WRITE_STREAM = "stream_produttore_1";
     this->c2r = redisConnect("localhost", 6379);
-    Con2DB db("localhost", "5432", "ecommerce", "47002", "db_ecommerce");
 
 
     /* Create streams/groups */
@@ -20,69 +19,68 @@ ServerP:: ServerP ( const char *nome
     initStreams(this->c2r, this->WRITE_STREAM);   
 }
  
-char* ServerP::readCommandRedis(int block){
+Cmd_Reply ServerP::readCommandRedis(int block){
     int i,k;
     char *cmd = new char[100];
     redisReply *reply;
+    Cmd_Reply cmd_reply;
 
-    reply = RedisCommand(c2r, "XREADGROUP GROUP diameter %s BLOCK %d COUNT 2 NOACK STREAMS %s >", this->nome, block, this->READ_STREAM);
+    reply = RedisCommand(this->c2r, "XREADGROUP GROUP diameter %s BLOCK %d COUNT 1 NOACK STREAMS %s >", this->nome, block, this->READ_STREAM);
 
-    assertReply(c2r, reply);
+    cout << "SEGFAULT" << endl;
+    assertReply(this->c2r, reply);
 
     k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
     
     i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
 
-    reply = RedisCommand(c2r, "XREADGROUP GROUP diameter %s BLOCK %d COUNT 1 NOACK STREAMS %s >", 
-			  this->nome, block, this->READ_STREAM);
+    ReadStreamMsgVal(reply, k, i, 1, cmd);
+    cmd_reply.cmd = cmd;
+    cmd_reply.reply = reply;
 
-    assertReply(this->c2r, reply);
 
-    ReadStreamMsgVal(reply, k, i, 4, cmd);
-
-    return cmd;
+    return cmd_reply;
 }
 
 // Legge le caratteristiche del prodotto da redis e salva prodotto nel database
-void ServerP::inserisciProdotto( int block){
+void ServerP::inserisciProdotto( int block, redisReply *reply){
     int k,i;
-    redisReply *reply;
+    redisReply *ret;
 
-    PGresult *res;
+    Con2DB db("localhost", "5432", "ecommerce", "47002", "db_ecommerce");
 
     char nome[100];
     char descrizione[100];
-    char prezzo[100];
-    char result[100];
     char key[100];
-    char errorMsg[100];
     char sqlcmd[1000]; 
 
-    reply = RedisCommand(c2r, "XREADGROUP GROUP diameter %s BLOCK %d COUNT 2 NOACK STREAMS %s >", this->nome, block, this->READ_STREAM);
+    cout << "ENTRA" << endl;
 
-    assertReply(c2r, reply);
+    assertReply(this->c2r, reply);
 
     k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
     
     i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
 
-    ReadStreamMsgVal(reply, k, i, 4, nome);
-    ReadStreamMsgVal(reply, k, i, 6, descrizione);
-    ReadStreamMsgVal(reply, k, i, 8, prezzo);
+    ReadStreamMsgVal(reply, k, i, 3, nome);
+    ReadStreamMsgVal(reply, k, i, 5, descrizione);
+
     
     freeReplyObject(reply);
 
-    sprintf(sqlcmd,  "INSERT INTO Prodotto VALUES (DEFAULT, \'%s\', \'%s\', \'%s') ON CONFLICT DO NOTHING",nome,descrizione,prezzo);
+    sprintf(sqlcmd,  "INSERT INTO Prodotto VALUES (DEFAULT, \'%s\', \'%s\',ROW('EUR',1000)) ON CONFLICT DO NOTHING",nome,descrizione);
+    cout << sqlcmd << endl;
     
-    res = this->db->ExecSQLcmd(sqlcmd);
+    db.ExecSQLcmd(sqlcmd);
+    cout << "QUI" << endl;
     
+    sprintf(key,"Risultato");
+    cout << "QUI" << endl;
     
-    redisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, res);
+    ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Aggiunto");
     assertReplyType(this->c2r, reply, REDIS_REPLY_STRING);
-    freeReplyObject(reply);
+    freeReplyObject(ret);
     
-    PQclear(res);
-
 
 
 }
