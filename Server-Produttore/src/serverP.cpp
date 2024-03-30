@@ -6,6 +6,7 @@ using namespace std;
 
 ServerP:: ServerP ( const char *nome
 )
+    :db("localhost", "5432", "ecommerce", "47002", "db_ecommerce")
 
 { 
     this->nome = nome;
@@ -24,10 +25,9 @@ Cmd_Reply ServerP::readCommandRedis(int block){
     char *cmd = new char[100];
     redisReply *reply;
     Cmd_Reply cmd_reply;
-
+    
     reply = RedisCommand(this->c2r, "XREADGROUP GROUP diameter %s BLOCK %d COUNT 1 NOACK STREAMS %s >", this->nome, block, this->READ_STREAM);
-
-    cout << "SEGFAULT" << endl;
+    
     assertReply(this->c2r, reply);
 
     k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
@@ -35,6 +35,7 @@ Cmd_Reply ServerP::readCommandRedis(int block){
     i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
 
     ReadStreamMsgVal(reply, k, i, 1, cmd);
+    
     cmd_reply.cmd = cmd;
     cmd_reply.reply = reply;
 
@@ -47,16 +48,14 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
     int k,i;
     redisReply *ret;
 
-    Con2DB db("localhost", "5432", "ecommerce", "47002", "db_ecommerce");
 
     char nome[100];
     char descrizione[100];
     char key[100];
     char sqlcmd[1000]; 
 
-    cout << "ENTRA" << endl;
 
-    assertReply(this->c2r, reply);
+    
 
     k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
     
@@ -64,21 +63,21 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
 
     ReadStreamMsgVal(reply, k, i, 3, nome);
     ReadStreamMsgVal(reply, k, i, 5, descrizione);
-
+    
     
     freeReplyObject(reply);
+    
 
     sprintf(sqlcmd,  "INSERT INTO Prodotto VALUES (DEFAULT, \'%s\', \'%s\',ROW('EUR',1000)) ON CONFLICT DO NOTHING",nome,descrizione);
-    cout << sqlcmd << endl;
+    // cout << sqlcmd << endl;
     
-    db.ExecSQLcmd(sqlcmd);
-    cout << "QUI" << endl;
+    this->db.ExecSQLcmd(sqlcmd);
     
     sprintf(key,"Risultato");
-    cout << "QUI" << endl;
+
     
     ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Aggiunto");
-    assertReplyType(this->c2r, reply, REDIS_REPLY_STRING);
+    assertReply(this->c2r, ret);
     freeReplyObject(ret);
     
 
