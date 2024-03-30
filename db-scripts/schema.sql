@@ -105,3 +105,23 @@ CREATE TABLE IF NOT EXISTS Acquisto(
 	CONSTRAINT check_istante CHECK ( istante < istConsegna ),
 	CONSTRAINT check_isConsegnato CHECK (( consegnato = true AND istConsegna is NOT NULL ) OR ( consegnato = false ))
 );
+
+
+INSERT INTO Trasportatore (ragioneSociale, sede) VALUES 
+    ('Azienda di Trasporti ABC', ('Via Roma', '123', '00100')),
+    ('Trasporti XYZ S.p.A.', ('Via Milano', '456', '00200')),
+    ('Logistica 123', ('Corso Napoli', '789', '00300'));
+
+
+INSERT INTO Costumer (nome, cognome, email, indirizzo) 
+VALUES 
+    ('Mario', 'Rossi', 'mario.rossi@example.com', ('Via Roma', '123', '00100')),
+    ('Luigi', 'Bianchi', 'luigi.bianchi@example.com', ('Via Milano', '456', '00200')),
+    ('Anna', 'Verdi', 'anna.verdi@example.com', ('Corso Napoli', '789', '00300'));
+
+
+INSERT INTO Prodotto (nome, descrizione, prezzo) 
+VALUES 
+    ('Maglietta', 'Maglietta di cotone blu con logo stampato', ('EUR', 19)),
+    ('Pantaloni', 'Pantaloni jeans regular fit', ('EUR', 39)),
+    ('Scarpe', 'Scarpe sportive leggere e traspiranti', ('EUR', 59));
