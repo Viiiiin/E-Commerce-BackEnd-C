@@ -25,6 +25,7 @@ class ServerP {
     private: 
         const char *nome;
         redisContext *c2r;
+        Con2DB db;
         const char *READ_STREAM;
         const char *WRITE_STREAM;
 };
