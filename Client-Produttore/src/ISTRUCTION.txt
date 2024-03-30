@@ -1,0 +1,1 @@
+Si puo usare flag -p per il numero di produttori e -s per il time to sleep
