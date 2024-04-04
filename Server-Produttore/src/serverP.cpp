@@ -48,14 +48,16 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
     int k,i;
     redisReply *ret;
 
-
+    char produttore[100];
     char nome[100];
     char descrizione[100];
     char key[100];
     char sqlcmd[1000]; 
-
+    char valuta[4];
+    char prezzo[100];
 
     
+
 
     k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
     
@@ -63,12 +65,14 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
 
     ReadStreamMsgVal(reply, k, i, 3, nome);
     ReadStreamMsgVal(reply, k, i, 5, descrizione);
-    
+    ReadStreamMsgVal(reply, k, i, 7, produttore);
+    ReadStreamMsgVal(reply, k, i, 9, valuta);
+    ReadStreamMsgVal(reply, k, i, 11, prezzo);
     
     freeReplyObject(reply);
     
 
-    sprintf(sqlcmd,  "INSERT INTO Prodotto VALUES (DEFAULT, \'%s\', \'%s\',ROW('EUR',1000)) ON CONFLICT DO NOTHING",nome,descrizione);
+    sprintf(sqlcmd,  "INSERT INTO Prodotto VALUES (DEFAULT,\'%s\' ,\'%s\', \'%s\',ROW(\'%s\',\'%s\')) ON CONFLICT DO NOTHING;",produttore,nome,descrizione,valuta,prezzo);
     // cout << sqlcmd << endl;
     
     this->db.ExecSQLcmd(sqlcmd);
