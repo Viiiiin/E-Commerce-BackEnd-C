@@ -15,7 +15,7 @@ CREATE DOMAIN MediumVar as VARCHAR(200) ;
 CREATE DOMAIN LargeVar as VARCHAR(2000) ;
 -- create domain VarChar with different length
 
-
+CREATE DOMAIN IntegerGEZ as Integer check(value >=0);
 CREATE DOMAIN IntegerGtz as Integer check(value >0);
 CREATE DOMAIN Valuta as VARCHAR(3);
 CREATE DOMAIN CAP as VARCHAR(5);
@@ -86,17 +86,19 @@ CREATE TABLE IF NOT EXISTS Trasportatore(
 	
 CREATE TABLE IF NOT EXISTS Prodotto(
 	id serial PRIMARY KEY,
+	produttore IntegerGEZ NOT NULL,
 	nome SmallVar NOT NULL,
 	descrizione LargeVar,
-	prezzo Prezzo NOT NULL
+	prezzo Prezzo NOT NULL,
+	FOREIGN KEY(produttore) REFERENCES Produttore(id)
 );
 	
 CREATE TABLE IF NOT EXISTS Acquisto(
 	id serial PRIMARY KEY,
 	istante TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-	costumer int NOT NULL,
-	prodotto int NOT NULL,
-	trasportatore int NOT NULL,
+	costumer IntegerGEZ NOT NULL,
+	prodotto IntegerGEZ NOT NULL,
+	trasportatore IntegerGEZ NOT NULL,
 	consegnato bool NOT NULL,
 	istConsegna TIMESTAMP, 
 	FOREIGN KEY(costumer) REFERENCES Costumer(id),
@@ -120,8 +122,9 @@ VALUES
     ('Anna', 'Verdi', 'anna.verdi@example.com', ('Corso Napoli', '789', '00300'));
 
 
-INSERT INTO Prodotto (nome, descrizione, prezzo) 
+INSERT INTO Produttore (ragioneSociale, sede) 
 VALUES 
-    ('Maglietta', 'Maglietta di cotone blu con logo stampato', ('EUR', 19)),
-    ('Pantaloni', 'Pantaloni jeans regular fit', ('EUR', 39)),
-    ('Scarpe', 'Scarpe sportive leggere e traspiranti', ('EUR', 59));
+    ('Azienda Tessile S.r.l.', ('Via Garibaldi', '10', '20100')),
+    ('Calzaturificio Italiano S.p.A.', ('Corso Italia', '20', '50123')),
+    ('Maglieria Moda S.r.l.', ('Via Roma', '30', '10100')),
+    ('Fabbri Abbigliamento S.p.A.', ('Via Venezia', '40', '30100'));
