@@ -70,6 +70,6 @@ void ServerC::acquistaProdotto( int block, redisReply *reply){
     cout << "QUI" << endl;
     
     ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Aggiunto");
-    assertReplyType(this->c2r, reply, REDIS_REPLY_STRING);
+    assertReply(this->c2r, reply);
     freeReplyObject(ret);
 }
