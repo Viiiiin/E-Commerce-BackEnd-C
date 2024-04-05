@@ -1,6 +1,8 @@
 #include "serverC.h"
 #include <string>
 #include <iostream>
+#include "logger.h"
+
 using namespace std;
 
 int main(){
@@ -22,6 +24,8 @@ int main(){
             cout<<"Prodotto acquistato con successo"<< endl;
         }
         read_counter++;
+
+        log("Comando letto", -1);
     }
 
     return 0;
