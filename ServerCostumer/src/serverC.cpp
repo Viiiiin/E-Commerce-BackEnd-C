@@ -1,5 +1,4 @@
 #include "serverC.h"
-#include "logger.h"
 
 
 ServerC:: ServerC (
@@ -35,8 +34,6 @@ Cmd_Reply ServerC::readCommandRedis(int block){
     ReadStreamMsgVal(reply, k, i, 1, cmd);
     cmd_reply.cmd = cmd;
     cmd_reply.reply = reply;
-
-    log("Comando letto", -1);
 
     return cmd_reply;
 }
@@ -75,5 +72,4 @@ void ServerC::acquistaProdotto( int block, redisReply *reply){
     assertReply(this->c2r, reply);
     freeReplyObject(ret);
 
-    log("Prodotto acquistato", -1);
 }

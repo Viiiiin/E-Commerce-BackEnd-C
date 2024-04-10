@@ -1,7 +1,6 @@
 #include "serverC.h"
 #include <string>
 #include <iostream>
-#include "logger.h"
 
 using namespace std;
 
@@ -25,7 +24,6 @@ int main(){
         }
         read_counter++;
 
-        log("Comando letto", -1);
     }
 
     return 0;
