@@ -2,7 +2,6 @@
 #include "costumer.h"
 #include <string>
 #include <iostream>
-#include "logger.h"
 
 using namespace std;
 
@@ -17,7 +16,6 @@ int main(){
         cout << "Acquistato prodotto: ";
         cout << x << endl;
         x++;
-        log("Prodotto acquistato", prodotto[i]);
     }
     return 0;
 }

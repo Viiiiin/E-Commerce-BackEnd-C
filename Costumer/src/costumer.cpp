@@ -1,7 +1,5 @@
 // Effettua richiesta al server di aggiungere un prodotto
 #include "costumer.h"
-#include "logger.h"
-
 
 Costumer::Costumer(int id, const char *nome, const char *cognome)
 {
@@ -16,7 +14,6 @@ Costumer::Costumer(int id, const char *nome, const char *cognome)
     initStreams(this->c2r, this->READ_STREAM);
     initStreams(this->c2r, this->WRITE_STREAM);
 
-    log("Oggetto Costumer creato", -1);
 }
 
 
@@ -33,7 +30,5 @@ void Costumer::acquistaProdotto(int prodotto){
     assertReplyType(this->c2r,reply,REDIS_REPLY_STRING);
 
     freeReplyObject(reply);
-
-    log("Prodotto acquistato", prodotto);
 
 }
