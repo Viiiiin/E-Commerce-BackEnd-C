@@ -14,6 +14,7 @@
 #include <gsl/gsl_fit.h>
 #include <cassert>
 #include <cerrno>
+#include "global.h"
 
 
 #define DEBUG 1000
@@ -21,6 +22,9 @@
 #define HORIZON 10  // TICKS
 
 
+
+
+void log2db(char* message,int id, Con2DB db,char* domainType, char* function);
 int msleep(long msec);
 int micro_sleep(long usec);
 int long get_nanos(void);
