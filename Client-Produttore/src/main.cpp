@@ -42,7 +42,7 @@ int main(int argc,char *argv[]){
 	long time_to_sleep= 0;
     char c;
 	
-    while ((c = getopt(argc, argv, "p:s:")) != -1) {
+    while ((c = getopt(argc, argv, "p:t:")) != -1) {
         switch (c) {
             case 'p':    /* numero produttori */
               numero_produttori = atoi(optarg);
