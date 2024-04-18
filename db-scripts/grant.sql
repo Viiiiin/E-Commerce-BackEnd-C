@@ -5,8 +5,9 @@
 GRANT ALL PRIVILEGES ON DATABASE :dbname to :username ;
 
 
-ALTER TABLE TimeVar OWNER TO :username ;
+
 ALTER TABLE LogTable OWNER TO :username ;
+ALTER TABLE nomefun OWNER TO :username ;
 ALTER TABLE Produttore OWNER TO :username ;
 ALTER TABLE Costumer OWNER TO :username ;
 ALTER TABLE Trasportatore OWNER TO :username ;
