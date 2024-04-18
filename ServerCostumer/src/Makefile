@@ -11,7 +11,7 @@ CFLAGS=-std=c++20 -g -ggdb -fpermissive -L/usr/local/lib -Wall -I. -I$(IDIR) -I$
 
 # Dependency and source files
 DEPS = $(wildcard $(IDIR)/*.h) $(wildcard $(IDIR_DB)/*.h)
-SRC = $(wildcard *.cpp)
+SRC = $(wildcard *.cpp) logger.cpp
 OBJ = $(patsubst %.cpp, $(ODIR)/%.o, $(SRC))
 
 # Object files for con2redis and con2db

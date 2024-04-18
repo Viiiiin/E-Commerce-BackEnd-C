@@ -5,6 +5,7 @@
 #include "pgsql.h" // Include the header file for con2DB
 #include <string>
 #include <iostream>
+#include "logger.cpp"
 
 using namespace std;
 
