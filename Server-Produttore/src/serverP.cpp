@@ -77,6 +77,7 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
     
     this->db.ExecSQLcmd(sqlcmd);
     
+    
     sprintf(key,"Risultato");
 
     
