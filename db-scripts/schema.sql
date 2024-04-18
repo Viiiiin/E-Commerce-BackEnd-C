@@ -35,19 +35,14 @@ create domain VarType as double precision ;
 -- create domain VarType as int ;
 
 
-CREATE TYPE DomainType AS ENUM ('discrete', 'real', 'double');
+CREATE TYPE DomainType AS ENUM ('costumer', 'fornitore', 'trasportatore');
 
 
 
 -- Patient data that depend on time
 -- Variables within time series (all have the same type)
-CREATE TABLE IF NOT EXISTS TimeVar (
-        vid serial PRIMARY KEY,     -- serial id for variable
-        pid int NOT NULL,           -- pid of process logged
-        sysname String4Info,        --- system containing logged variable
-        varname String4VarName NOT NULL,     -- variable name
-        vardomain DomainType NOT NULL,
-        varinfo String4Info NOT NULL
+CREATE TABLE IF NOT EXISTS nomefun (
+        nome MediumVar PRIMARY KEY
 );
 
 -- Timescaledb extension for time series
@@ -56,12 +51,14 @@ CREATE TABLE IF NOT EXISTS TimeVar (
 
 CREATE TABLE IF NOT EXISTS LogTable (
         nanosec bigint NOT NULL,		-- nanseconds after second
-        vid int NOT NULL,			-- variable id
-        varvalue VarType,                       -- variable value
-	loginfo String4Info,                    -- extra info
-        PRIMARY KEY (nanosec, vid),
-        CONSTRAINT vid_ref FOREIGN KEY(vid) REFERENCES TimeVar(vid)
-);
+        id int NOT NULL,			-- variable id
+        vardomain DomainType NOT NULL,          
+		fun MediumVar NOT NULL,
+		loginfo String4Info,                     -- extra info
+		istante TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        PRIMARY KEY (nanosec, id, vardomain),
+        FOREIGN KEY(fun) REFERENCES nomefun(nome));
+        
 
 CREATE TABLE IF NOT EXISTS Costumer(
 	id serial PRIMARY KEY,
@@ -109,6 +106,11 @@ CREATE TABLE IF NOT EXISTS Acquisto(
 );
 
 
+INSERT INTO nomefun (nome) VALUES
+    ('Consegna'),
+    ('Acquisto'),
+    ('Vendita');
+
 INSERT INTO Trasportatore (ragioneSociale, sede) VALUES 
     ('Azienda di Trasporti ABC', ('Via Roma', '123', '00100')),
     ('Trasporti XYZ S.p.A.', ('Via Milano', '456', '00200')),
@@ -120,6 +122,7 @@ VALUES
     ('Mario', 'Rossi', 'mario.rossi@example.com', ('Via Roma', '123', '00100')),
     ('Luigi', 'Bianchi', 'luigi.bianchi@example.com', ('Via Milano', '456', '00200')),
     ('Anna', 'Verdi', 'anna.verdi@example.com', ('Corso Napoli', '789', '00300'));
+
 
 
 INSERT INTO Produttore (ragioneSociale, sede) 
