@@ -15,6 +15,8 @@
 #include <cassert>
 #include <cerrno>
 #include "global.h"
+#include "../../con2db/pgsql.h"
+
 
 
 #define DEBUG 1000
@@ -24,7 +26,7 @@
 
 
 
-void log2db(char* message,int id, Con2DB db,char* domainType, char* function);
+void log2db(char* message, int id, Con2DB db,char* domainType, char* function);
 int msleep(long msec);
 int micro_sleep(long usec);
 int long get_nanos(void);
