@@ -17,9 +17,12 @@ Costumer::Costumer(int id, const char *nome, const char *cognome)
 }
 
 
-void Costumer::acquistaProdotto(int prodotto){
+int Costumer::acquistaProdotto(int prodotto){
     char key0[100];
     char key1[100];
+    int block = 10000000;
+    int k,i;
+    char result[100];
     redisReply *reply;
 
     sprintf(key0,"comando");
@@ -30,5 +33,21 @@ void Costumer::acquistaProdotto(int prodotto){
     assertReplyType(this->c2r,reply,REDIS_REPLY_STRING);
 
     freeReplyObject(reply);
+
+    reply = RedisCommand(this->c2r, "XREADGROUP GROUP diameter %d BLOCK %d COUNT 1 NOACK STREAMS %s >", this->id, block, this->READ_STREAM);
+    
+    assertReply(this->c2r, reply);
+
+    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    
+    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+
+    ReadStreamMsgVal(reply, k, i, 1, result);
+    freeReplyObject(reply);
+
+    if (strcmp(result, "Acquistato") != 0){ 
+        return 1;
+    }
+    return 0;
 
 }

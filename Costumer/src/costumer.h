@@ -2,14 +2,16 @@
 #define costumer_h
 
 #include "con2redis.h"
-
-
+#include <iostream>
+#include <string>
+#include <cstring>
+using namespace std;
 
 class Costumer {
 public:
     Costumer(int id, const char *nome, const char *cognome);
     
-    void acquistaProdotto(int prod);
+    int acquistaProdotto(int prod);
 
 private:
     redisContext *c2r;
