@@ -9,6 +9,7 @@ int main(){
     //int j=0;
     int block = 1000000000;
     int read_counter=0;
+    int res = 0;
     //int send_counter=0;
     Cmd_Reply cmd_reply;
 
@@ -19,8 +20,13 @@ int main(){
         cout << cmd_reply.cmd << endl;
         if (cmd_reply.cmd =="Acquista"){
             cout<<"Acquistando il prodotto..."<< endl;
-            server.acquistaProdotto(block,cmd_reply.reply);
-            cout<<"Prodotto acquistato con successo"<< endl;
+            res = server.acquistaProdotto(block,cmd_reply.reply);
+            if (res==0){
+                cout << " Prodotto acquistato con successo ";
+            }
+            else {
+                cout << " Acquisto del prodotto non riuscito ";
+            }
         }
         read_counter++;
 

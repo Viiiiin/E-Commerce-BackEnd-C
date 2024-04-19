@@ -39,7 +39,7 @@ Cmd_Reply ServerC::readCommandRedis(int block){
 }
 
 
-void ServerC::acquistaProdotto( int block, redisReply *reply){
+int ServerC::acquistaProdotto( int block, redisReply *reply){
     int k,i;
     redisReply *ret;
     PGresult *res;
@@ -78,7 +78,7 @@ void ServerC::acquistaProdotto( int block, redisReply *reply){
         ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto NON esiste");
         assertReply(this->c2r, reply);
         freeReplyObject(ret);
-        return;
+        return 1;
     }
 
     sprintf(sqlcmd, "INSERT INTO Acquisto (istante, costumer, prodotto, trasportatore, consegnato, istConsegna) VALUES (DEFAULT, '1', \'%s\', '1', 'false', NULL) ON CONFLICT DO NOTHING", idProdotto);
@@ -95,6 +95,8 @@ void ServerC::acquistaProdotto( int block, redisReply *reply){
     ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Acquistato");
     assertReply(this->c2r, reply);
     freeReplyObject(ret);
+
+    return 0;
 
 }
 

@@ -21,7 +21,7 @@ class ServerC {
         Cmd_Reply readCommandRedis(int block);
 
         // Legge le caratteristiche del prodotto da redis e salva prodotto nel database
-        void acquistaProdotto(int block,redisReply *reply);
+        int acquistaProdotto(int block,redisReply *reply);
    
     private: 
         const char *nome;
