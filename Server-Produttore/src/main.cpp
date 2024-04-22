@@ -19,6 +19,11 @@ int main(){
             server.inserisciProdotto(block,cmd_reply.reply);
             cout<<"Prodotto inserito con successo: ";
         }
+         if (cmd_reply.cmd =="Rimuovi"){
+            
+            server.rimuoviProdotto(block,cmd_reply.reply);
+            cout<<"Prodotto rimosso con successo: ";
+        }
         count++;
         cout<<count<<endl;
     }
