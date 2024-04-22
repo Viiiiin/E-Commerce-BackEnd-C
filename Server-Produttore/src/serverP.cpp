@@ -88,3 +88,73 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
 
 
 }
+void ServerP::rimuoviProdotto( int block, redisReply *reply){
+    int k,i;
+    redisReply *ret;
+    PGresult *res;
+
+    char produttore[100];
+    char idProdotto[100];
+    char key[100];
+    char sqlcmd[1000];
+    bool exist=false;
+    bool buy=false;
+    
+
+
+    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    
+    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+
+    
+    ReadStreamMsgVal(reply, k, i, 3, produttore);
+    ReadStreamMsgVal(reply, k, i, 5, idProdotto);
+    
+    
+    freeReplyObject(reply);
+
+    sprintf(sqlcmd, "SELECT 1 FROM Prodotto WHERE id = '%s';", idProdotto);
+
+    // Esecuzione della query e controllo del risultato
+    res = db.ExecSQLtuples(sqlcmd);
+    if (res != NULL && PQntuples(res) > 0) {
+        exist = true; // Se la query restituisce almeno una riga, il prodotto esiste
+        PQclear(res);
+    }
+
+    if (!exist){
+        sprintf(key,"Risultato");
+        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto NON esiste");
+        assertReply(this->c2r, reply);
+        freeReplyObject(ret);
+        return;
+    }
+    sprintf(sqlcmd, "SELECT * FROM Acquisto WHERE prodotto = '%s';", idProdotto);
+
+    // Esecuzione della query e controllo del risultato
+    res = db.ExecSQLtuples(sqlcmd);
+    if (res != NULL && PQntuples(res) > 0) {
+        buy = true; // Se la query restituisce almeno una riga, il prodotto esiste
+        PQclear(res);
+    }
+
+    if (buy){
+        sprintf(key,"Risultato");
+        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto e' stato gia' acquistato... ");
+        assertReply(this->c2r, reply);
+        freeReplyObject(ret);
+        return;
+    }
+    sprintf(sqlcmd,  "DELETE FROM Prodotto p,Produttore pr WHERE p.produttore=pr.id and pr.id=\'%s\' and p.id=\'%s\'",produttore,idProdotto);
+    // cout << sqlcmd << endl;
+    
+    this->db.ExecSQLcmd(sqlcmd);
+    
+    
+    sprintf(key,"Risultato");
+
+    
+    ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Rimosso");
+    assertReply(this->c2r, ret);
+    freeReplyObject(ret);
+}
