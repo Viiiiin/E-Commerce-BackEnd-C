@@ -3,8 +3,6 @@
 
 #include "con2redis.h"
 
-
-
 class Trasportatore {
     public: 
         Trasportatore(
