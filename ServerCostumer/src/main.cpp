@@ -17,16 +17,21 @@ int main(){
     cout << "Il Server dei Costumer sta ascoltando..." << endl;
     while(1){
         cmd_reply = server.readCommandRedis(block);
-        cout << cmd_reply.cmd << endl;
+        // cout << cmd_reply.cmd << endl;
         if (cmd_reply.cmd =="Acquista"){
             cout<<"Acquistando il prodotto..."<< endl;
             res = server.acquistaProdotto(block,cmd_reply.reply);
             if (res==0){
-                cout << " Prodotto acquistato con successo ";
+                cout << "Prodotto acquistato con successo "<< endl;
             }
-            else {
-                cout << " Acquisto del prodotto non riuscito ";
+            else if (res == 1) {
+                cout << "Il prodotto da acquistare non esiste "<< endl;
             }
+            else if (res == 2) {
+                cout << "Il prodotto da acquistare e' stato gia' venduto "<< endl;
+            }
+            
+            cout << "---------------------------------------------------------------"<< endl;
         }
         read_counter++;
 
