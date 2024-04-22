@@ -111,6 +111,7 @@ INSERT INTO nomefun (nome) VALUES
     ('Acquisto'),
     ('Vendita');
 
+
 INSERT INTO Trasportatore (ragioneSociale, sede) VALUES 
     ('Azienda di Trasporti ABC', ('Via Roma', '123', '00100')),
     ('Trasporti XYZ S.p.A.', ('Via Milano', '456', '00200')),
@@ -124,10 +125,17 @@ VALUES
     ('Anna', 'Verdi', 'anna.verdi@example.com', ('Corso Napoli', '789', '00300'));
 
 
-
 INSERT INTO Produttore (ragioneSociale, sede) 
 VALUES 
     ('Azienda Tessile S.r.l.', ('Via Garibaldi', '10', '20100')),
     ('Calzaturificio Italiano S.p.A.', ('Corso Italia', '20', '50123')),
     ('Maglieria Moda S.r.l.', ('Via Roma', '30', '10100')),
     ('Fabbri Abbigliamento S.p.A.', ('Via Venezia', '40', '30100'));
+
+
+INSERT INTO Prodotto (produttore, nome, descrizione, prezzo) 
+VALUES 
+    (1, 'Laptop', 'Laptop con schermo da 15 pollici', ROW('EUR', 99999)),
+    (2, 'Smartphone', NULL, ROW('USD', 79999)),
+    (1, 'Tastiera wireless', 'Tastiera senza fili con layout italiano', ROW('EUR', 4999)),
+    (3, 'Mouse gaming', NULL, ROW('USD', 2999));
