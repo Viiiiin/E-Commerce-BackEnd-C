@@ -6,20 +6,15 @@
 using namespace std;
 
 int main(){    
-    int res;
+    string res;
     int i=1;
     int x=0;
     Costumer cost(1, "Mario", "Rossi");
-    int prodotto[] = {1,2,3};
-    while(x<100){
-        i = rand() % 3;
+    int prodotto[] = {1,2,3,4,5,6};
+    while(x<10){
+        i = rand() % 6;
         res = cost.acquistaProdotto(prodotto[i]);
-        if (res==0){
-        cout << " Ha acquistato un prodotto: ";
-        }
-        else {
-            cout << " Acquisto del prodotto non riuscito n: ";
-        }
+        cout << res << endl;
         x++;
         cout << x << endl;
     }

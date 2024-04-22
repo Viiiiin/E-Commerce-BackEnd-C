@@ -9,6 +9,16 @@ Costumer::Costumer(int id, const char *nome, const char *cognome)
     this->READ_STREAM = "stream_costumer_1";
     this->WRITE_STREAM = "stream_costumer_2";
     this->c2r = redisConnect("localhost", 6379);
+    redisReply *reply;
+
+    // delete stream if it exists
+    reply = RedisCommand(c2r, "DEL %s", READ_STREAM);
+    assertReply(c2r, reply);
+    dumpReply(reply, 0);
+
+    reply = RedisCommand(c2r, "DEL %s", WRITE_STREAM);
+    assertReply(c2r, reply);
+    dumpReply(reply, 0);
 
     /* Create streams/groups */
     initStreams(this->c2r, this->READ_STREAM);
@@ -17,7 +27,7 @@ Costumer::Costumer(int id, const char *nome, const char *cognome)
 }
 
 
-int Costumer::acquistaProdotto(int prodotto){
+string Costumer::acquistaProdotto(int prodotto){
     char key0[100];
     char key1[100];
     int block = 10000000;
@@ -45,9 +55,6 @@ int Costumer::acquistaProdotto(int prodotto){
     ReadStreamMsgVal(reply, k, i, 1, result);
     freeReplyObject(reply);
 
-    if (strcmp(result, "Acquistato") != 0){ 
-        return 1;
-    }
-    return 0;
+    return result;
 
 }
