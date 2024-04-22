@@ -2,7 +2,7 @@
 #include <string>
 #include <iostream>
 #include <unistd.h> // Libreria per la fork()
-#include "../../tools/msleep.cpp"
+#include "../../tools/src/main.h"
 #include <math.h>
 #include <sys/wait.h> // Libreria per la wait()
 using namespace std;
@@ -14,26 +14,32 @@ void produttoreProcesso(Produttore& prod, long time) {
         {"Scarpe", "Scarpe sportive leggere e traspiranti", {"EUR", 59}},
         {"Cappello", "Cappello vintage anni 60", {"USD", 25}}
         };
-
-    int res;
+        
     int x = 0;
     pid_t pid;
-    while (x < 1000) {
+    string res;
+    while (x < 100) {
         msleep(time);
-        int i = rand() % 4;
-        res = prod.inserisciProdotto(prodotti[i].nome, prodotti[i].descrizione,prodotti[i].prezzo);
-        pid = getpid();
-        cout << pid;
-        if (res==0){
-        cout << " Ha inserito un prodotto: ";
-        }
-        else {
-            cout << " Inserimento prodotto non riuscito n: ";
+        int j = rand() % 2;
+        int i = rand() %100000;
+        switch (j)
+        {
+        case 0:
+            i= i%4;
+            res = prod.inserisciProdotto(prodotti[i].nome, prodotti[i].descrizione,prodotti[i].prezzo);
+            break;
+        case 1:
+            res = prod.rimuoviProdotto(i);
+        default:
+            break;
         }
         x++;
-        cout << x << endl;
+        cout << res <<": "<< x << endl;
+       
     }
 }
+
+
 
 int main(int argc,char *argv[]){
 	
