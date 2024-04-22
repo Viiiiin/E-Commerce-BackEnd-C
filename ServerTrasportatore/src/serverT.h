@@ -3,6 +3,7 @@
 
 #include "con2redis.h"
 #include "pgsql.h" // Include the header file for con2DB
+#include "../../tools/src/main.h"
 
 class ServerT {
 public: 
