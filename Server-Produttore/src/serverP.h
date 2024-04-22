@@ -21,6 +21,8 @@ class ServerP {
 
         // Legge le caratteristiche del prodotto da redis e salva prodotto nel database
         void inserisciProdotto(int block,redisReply *reply);
+
+        void rimuoviProdotto(int block, redisReply *reply);
    
     private: 
         const char *nome;
