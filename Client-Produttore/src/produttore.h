@@ -23,7 +23,10 @@ class Produttore {
 
         Produttore(const int id);
 
-        int inserisciProdotto(const char *nome, const char *descrizione,Prezzo prezzo);
+        string inserisciProdotto(const char *nome, const char *descrizione,Prezzo prezzo);
+        
+        string rimuoviProdotto(const int id);
+        
     private: 
         int id;
         redisContext *c2r;
