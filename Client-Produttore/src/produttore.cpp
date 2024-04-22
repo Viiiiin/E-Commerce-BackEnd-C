@@ -1,4 +1,4 @@
-// Effettua richiesta al server di aggiungere un prodotto
+// NOTA: InserisciProdotto come Rimuovi contengono parti di codice che è possibile rendere Funzione, inoltre dovrebbero restituire una stringa(messaggio ricevuto dal server)
 #include "produttore.h"
 
 Produttore::Produttore(int id)
@@ -15,7 +15,7 @@ Produttore::Produttore(int id)
 
 
 
-int Produttore::inserisciProdotto(const char *nome,const char *descrizione, Prezzo prezzo){
+string Produttore::inserisciProdotto(const char *nome,const char *descrizione, Prezzo prezzo){
     char key0[100];
     char key1[100];
     char key2[100];
@@ -34,7 +34,7 @@ int Produttore::inserisciProdotto(const char *nome,const char *descrizione, Prez
 
    
 
-    reply= RedisCommand(this->c2r, "XADD %s * %s %s %s %s %s %s %s %d %s %s %s %d",this->WRITE_STREAM, key0, "Inserisci", key1, nome, key2, descrizione,"produttore",this->id,"valuta",prezzo.valuta ,"prezzo",prezzo.prezzo);
+    reply= RedisCommand(this->c2r, "XADD %s * %s %s %s %s %s %s %s %d %s %s %s %d",this->WRITE_STREAM, key0, "Inserisci", key1, nome, key2, descrizione,"produttore",this->id,key4,prezzo.valuta ,key3,prezzo.prezzo);
 
     assertReplyType(this->c2r,reply,REDIS_REPLY_STRING);
 
@@ -50,9 +50,39 @@ int Produttore::inserisciProdotto(const char *nome,const char *descrizione, Prez
 
     ReadStreamMsgVal(reply, k, i, 1, result);
     freeReplyObject(reply);
+    return result;
+}
+string Produttore::rimuoviProdotto(const int idProdotto){
+    char key0[100];
+    char key1[100];
+    char key2[100];
+    char result[100];
+    int block = 10000000;
+    int k,i;
+    redisReply *reply;
 
-    if (strcmp(result, "Aggiunto") != 0){ 
-        return 1;
-    }
-    return 0;
+    sprintf(key0,"comando");
+    sprintf(key1, "nome");
+    sprintf(key2,"prodotto");
+
+   
+
+    reply= RedisCommand(this->c2r, "XADD %s * %s %s %s %d %s %d",this->WRITE_STREAM, key0, "Rimuovi", key1, this->id, key2,idProdotto);
+
+    assertReplyType(this->c2r,reply,REDIS_REPLY_STRING);
+
+    freeReplyObject(reply);
+
+    reply = RedisCommand(this->c2r, "XREADGROUP GROUP diameter %d BLOCK %d COUNT 1 NOACK STREAMS %s >", this->id, block, this->READ_STREAM);
+    
+    assertReply(this->c2r, reply);
+
+    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    
+    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+
+    ReadStreamMsgVal(reply, k, i, 1, result);
+    freeReplyObject(reply);
+    return result;
+   
 }
