@@ -21,6 +21,7 @@ string Produttore::inserisciProdotto(const char *nome,const char *descrizione, P
     char key2[100];
     char key3[100]; 
     char key4[100];
+    char key5[100];
     char result[100];
     int block = 10000000;
     int k,i;
@@ -31,10 +32,11 @@ string Produttore::inserisciProdotto(const char *nome,const char *descrizione, P
     sprintf(key2,"descrizione");
     sprintf(key3,"cifra");
     sprintf(key4,"valuta");
+    sprintf(key5,"produttore");
 
    
 
-    reply= RedisCommand(this->c2r, "XADD %s * %s %s %s %s %s %s %s %d %s %s %s %d",this->WRITE_STREAM, key0, "Inserisci", key1, nome, key2, descrizione,"produttore",this->id,key4,prezzo.valuta ,key3,prezzo.prezzo);
+    reply= RedisCommand(this->c2r, "XADD %s * %s %s %s %s %s %s %s %d %s %s %s %d",this->WRITE_STREAM, key0, "Inserisci", key1, nome, key2, descrizione,key5,this->id,key4,prezzo.valuta ,key3,prezzo.prezzo);
 
     assertReplyType(this->c2r,reply,REDIS_REPLY_STRING);
 
