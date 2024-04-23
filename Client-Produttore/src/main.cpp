@@ -4,6 +4,7 @@
 #include <unistd.h> // Libreria per la fork()
 #include "../../tools/src/main.h"
 #include <math.h>
+#include <time.h>
 #include <sys/wait.h> // Libreria per la wait()
 using namespace std;
 
@@ -16,7 +17,6 @@ void produttoreProcesso(Produttore& prod, long time) {
         };
         
     int x = 0;
-    pid_t pid;
     string res;
     while (x < 100) {
         msleep(time);
