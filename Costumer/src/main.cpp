@@ -11,7 +11,7 @@ int main(){
     int x=0;
     Costumer cost(1, "Mario", "Rossi");
     int prodotto[] = {1,2,3,4,5,6};
-    while(x<10){
+    while(x<30){
         i = rand() % 6;
         res = cost.acquistaProdotto(prodotto[i]);
         cout << res << endl;
