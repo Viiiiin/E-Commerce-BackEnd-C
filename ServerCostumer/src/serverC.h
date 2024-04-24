@@ -29,6 +29,7 @@ class ServerC {
         const char *READ_STREAM;
         const char *WRITE_STREAM;
         Con2DB db;
+        char* assegnaTrasportatore();
 };
 
 

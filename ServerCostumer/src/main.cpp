@@ -30,6 +30,9 @@ int main(){
             else if (res == 2) {
                 cout << "Il prodotto da acquistare e' stato gia' venduto "<< endl;
             }
+            else if (res == 3) {
+                cout << "Errore in fase di assegnazione trasportatore "<< endl;
+            }
             
             cout << "---------------------------------------------------------------"<< endl;
         }
