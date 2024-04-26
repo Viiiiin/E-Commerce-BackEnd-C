@@ -10,7 +10,6 @@ using namespace std;
 class Costumer {
 public:
     Costumer(int id, const char *nome, const char *cognome);
-    
     string acquistaProdotto(int prod);
 
 private:
@@ -21,7 +20,5 @@ private:
     const char *cognome;
     int id;
 };
-
-
 
 #endif

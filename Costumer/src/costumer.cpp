@@ -30,6 +30,7 @@ Costumer::Costumer(int id, const char *nome, const char *cognome)
 string Costumer::acquistaProdotto(int prodotto){
     char key0[100];
     char key1[100];
+    char key2[100];
     int block = 10000000;
     int k,i;
     char result[100];
@@ -37,8 +38,9 @@ string Costumer::acquistaProdotto(int prodotto){
 
     sprintf(key0,"comando");
     sprintf(key1, "prodotto");
+    sprintf(key2, "costumer");
 
-    reply = RedisCommand(this->c2r, "XADD %s * %s %s %d %s", this->WRITE_STREAM, key1, "Acquista", prodotto, key0);
+    reply = RedisCommand(this->c2r, "XADD %s * %s %s %d %s %d %s", this->WRITE_STREAM, key1, "Acquista", prodotto, key0, this->id, key2);
 
     assertReplyType(this->c2r,reply,REDIS_REPLY_STRING);
 
