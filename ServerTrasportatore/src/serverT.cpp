@@ -50,7 +50,7 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
     char idAcquisto[100];
     char key[100];
     char sqlcmd[1000];
-    char logmessage[200];
+    char logmessage[1000];
     char dominio[100];
     char funzione[100];
     bool exist=false;
