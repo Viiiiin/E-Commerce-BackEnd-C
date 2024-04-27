@@ -1,3 +1,4 @@
+
 -- database already exists
 
 \c :dbname 
@@ -67,17 +68,16 @@ CREATE TABLE IF NOT EXISTS Costumer(
 	email SmallVar NOT NULL,
 	indirizzo Indirizzo NOT NULL
 );
-	
-	
+		
 CREATE TABLE IF NOT EXISTS Produttore(
 	id serial PRIMARY KEY,
-	ragioneSociale MediumVar NOT NULL,
+	nome MediumVar NOT NULL,
 	sede indirizzo NOT NULL 
 );
 	
 CREATE TABLE IF NOT EXISTS Trasportatore(
 	id serial PRIMARY KEY,
-	ragioneSociale MediumVar NOT NULL,
+	nome MediumVar NOT NULL,
 	sede indirizzo NOT NULL 
 );
 	
@@ -112,7 +112,7 @@ INSERT INTO nomefun (nome) VALUES
     ('Vendita');
 
 
-INSERT INTO Trasportatore (ragioneSociale, sede) VALUES 
+INSERT INTO Trasportatore (nome, sede) VALUES 
     ('Azienda di Trasporti ABC', ('Via Roma', '123', '00100')),
     ('Trasporti XYZ S.p.A.', ('Via Milano', '456', '00200')),
     ('Logistica 123', ('Corso Napoli', '789', '00300'));
@@ -125,7 +125,7 @@ VALUES
     ('Anna', 'Verdi', 'anna.verdi@example.com', ('Corso Napoli', '789', '00300'));
 
 
-INSERT INTO Produttore (ragioneSociale, sede) 
+INSERT INTO Produttore (nome, sede) 
 VALUES 
     ('Azienda Tessile S.r.l.', ('Via Garibaldi', '10', '20100')),
     ('Calzaturificio Italiano S.p.A.', ('Corso Italia', '20', '50123')),
@@ -138,4 +138,7 @@ VALUES
     (1, 'Laptop', 'Laptop con schermo da 15 pollici', ROW('EUR', 99999)),
     (2, 'Smartphone', NULL, ROW('USD', 79999)),
     (1, 'Tastiera wireless', 'Tastiera senza fili con layout italiano', ROW('EUR', 4999)),
-    (3, 'Mouse gaming', NULL, ROW('USD', 2999));
+    (3, 'Mouse gaming', NULL, ROW('USD', 2999)),
+	(2, 'Tablet', 'Tablet con schermo da 10 pollici', ROW('USD', 49999)),
+    (3, 'Cuffie Bluetooth', 'Cuffie senza fili con cancellazione del rumore', ROW('USD', 14999)),
+    (1, 'Monitor', 'Monitor da 27 pollici con risoluzione 4K', ROW('EUR', 79999));

@@ -49,6 +49,35 @@ Cmd_Reply ServerC::readCommandRedis(int block){
 }
 
 
+char* ServerC::assegnaTrasportatore(){
+    PGresult *res;
+    char* result;
+    char sqlcmd[1000]; 
+    sprintf(sqlcmd, "SELECT t.id AS idTrasportatore FROM Trasportatore t WHERE t.id NOT IN (SELECT a.trasportatore FROM Acquisto a);");
+    res = db.ExecSQLtuples(sqlcmd);
+    if (res != NULL && PQntuples(res) > 0 ) {
+        result = PQgetvalue(res, 0, PQfnumber(res, "idTrasportatore"));
+        PQclear(res);
+        return result;
+    }
+    else {
+        PQclear(res);
+        sprintf(sqlcmd, "SELECT t.id idTrasportatore, count(*) numConsegne FROM Trasportatore t, Acquisto a WHERE t.id = a.trasportatore GROUP BY t.id ORDER BY numConsegne, t.nome");
+        res = db.ExecSQLtuples(sqlcmd);
+        if (res != NULL && PQntuples(res) > 0) {
+            result = PQgetvalue(res, 0, PQfnumber(res, "idTrasportatore"));
+            PQclear(res);
+            return result;
+        }
+        else {
+            PQclear(res);
+            return NULL;
+        }
+    }
+    return NULL;
+}
+
+
 int ServerC::acquistaProdotto( int block, redisReply *reply){
     int k,i;
     redisReply *ret;
@@ -57,12 +86,12 @@ int ServerC::acquistaProdotto( int block, redisReply *reply){
     bool buy = false;
 
     char idProdotto[100];
+    char idCostumer[100];
     char key[100];
     char sqlcmd[1000]; 
-    char logmessage[200];
+    char logmessage[1000];
     char dominio[10];
     char funzione[10];
-
 
     assertReply(this->c2r, reply);
 
@@ -71,6 +100,7 @@ int ServerC::acquistaProdotto( int block, redisReply *reply){
     i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
 
     ReadStreamMsgVal(reply, k, i, 2, idProdotto);
+    ReadStreamMsgVal(reply, k, i, 4, idCostumer);
     
     freeReplyObject(reply);
 
@@ -110,10 +140,18 @@ int ServerC::acquistaProdotto( int block, redisReply *reply){
         return 2;
     }
 
-    sprintf(sqlcmd, "INSERT INTO Acquisto (istante, costumer, prodotto, trasportatore, consegnato, istConsegna) VALUES (DEFAULT, '1', \'%s\', '1', 'false', NULL) ON CONFLICT DO NOTHING", idProdotto);
+    char* source;
+    char idTrasportatore[100];
+    source = assegnaTrasportatore();
+    strcpy(idTrasportatore, source);
+    if (idTrasportatore == NULL){
+        return 3;
+    }
+
+    sprintf(sqlcmd, "INSERT INTO Acquisto (istante, costumer, prodotto, trasportatore, consegnato, istConsegna) VALUES (DEFAULT, \'%s\', \'%s\', \'%s\', 'false', NULL) ON CONFLICT DO NOTHING", idCostumer, idProdotto, idTrasportatore);
     db.ExecSQLcmd(sqlcmd);
     
-    sprintf(logmessage,"Costumer %d ha acquistato il prodotto: %s",1,idProdotto);
+    sprintf(logmessage,"Costumer %s ha acquistato il prodotto: %s",idCostumer, idProdotto);
     sprintf(dominio,"costumer");
     sprintf(funzione,"Acquisto");
     log2db(logmessage,1,db,dominio,funzione);
