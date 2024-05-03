@@ -5,10 +5,11 @@
 #include "../../tools/src/main.h"
 #include <math.h>
 #include <time.h>
+#include <random>
 #include <sys/wait.h> // Libreria per la wait()
 using namespace std;
 
-void produttoreProcesso(Produttore& prod, long time) {
+void produttoreProcesso(Produttore& prod, long time, int numero_operazioni) {
        Prodotto prodotti[] = {
         {"Maglietta", "Maglietta di cotone blu con logo stampato", {"EUR", 19}},
         {"Pantaloni", "Pantaloni jeans regular fit", {"EUR", 39}},
@@ -17,11 +18,19 @@ void produttoreProcesso(Produttore& prod, long time) {
         };
         
     int x = 0;
+    int i=0;
     string res;
-    while (x < 100) {
+    while (x < numero_operazioni) {
         msleep(time);
         int j = rand() % 2;
-        int i = rand() %100000;
+        std::random_device rd;
+        std::mt19937 gen(rd());
+        
+        // Distribuzione uniforme tra 1 e 100
+        std::uniform_int_distribution<> dis(0, numero_operazioni);
+        
+        // Estrazione di un numero casuale
+        i = dis(gen);
         switch (j)
         {
         case 0:
@@ -46,16 +55,21 @@ int main(int argc,char *argv[]){
 	//Dichiarazione e inizializzazione delle variabili
 	int numero_produttori= 0;
 	long time_to_sleep= 0;
+    int numero_operazioni=0;
     char c;
 	
-    while ((c = getopt(argc, argv, "p:t:")) != -1) {
+    while ((c = getopt(argc, argv, "p:t:n:")) != -1) {
         switch (c) {
-            case 'p':    /* numero produttori */
+            case 'p':    
               numero_produttori = atoi(optarg);
               break;
-            case 't':    /* tempo di dormita */
+            case 't':    
               time_to_sleep = atoi(optarg);
               break;
+            case 'n': 
+              numero_operazioni= atoi(optarg);
+              break;
+              
         }
     }
     // Creazione di processi figlio
@@ -64,7 +78,7 @@ int main(int argc,char *argv[]){
         pid_t pid = fork();
 
         if (pid == 0) { // Processo figlio
-            produttoreProcesso(prod,time_to_sleep);
+            produttoreProcesso(prod,time_to_sleep,numero_operazioni);
             exit(0); // Termina il processo figlio dopo aver completato il lavoro
         } else if (pid < 0) { // Errore nella creazione del processo figlio
             cerr << "Errore nella fork()" << endl;
@@ -78,4 +92,25 @@ int main(int argc,char *argv[]){
     while ((pid = wait(&status)) > 0);
 
     return 0;
-}
+} 
+
+
+/*
+int main(){
+
+     Prodotto prodotti[] = {
+        {"Maglietta", "Maglietta di cotone blu con logo stampato", {"EUR", 19}},
+        {"Pantaloni", "Pantaloni jeans regular fit", {"EUR", 39}},
+        {"Scarpe", "Scarpe sportive leggere e traspiranti", {"EUR", 59}},
+        {"Cappello", "Cappello vintage anni 60", {"USD", 25}}
+        };
+
+        Produttore prod(1);
+        int i= 1;
+        string res;
+        res = prod.inserisciProdotto(prodotti[i].nome, prodotti[i].descrizione,prodotti[i].prezzo);
+        cout<< res<<endl;
+        res= prod.rimuoviProdotto(i);
+        cout <<res<<endl;
+    
+}*/
