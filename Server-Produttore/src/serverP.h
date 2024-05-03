@@ -5,6 +5,7 @@
 #include "pgsql.h" // Include the header file for con2DB
 #include <string>
 #include <iostream>
+#include "../../tools/src/main.h"
 
 using namespace std;
 
