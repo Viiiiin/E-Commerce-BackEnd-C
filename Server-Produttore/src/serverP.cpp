@@ -55,6 +55,9 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
     char sqlcmd[1000]; 
     char valuta[4];
     char prezzo[100];
+    char logmessage[1000];
+    char dominio[100];
+    char funzione[100];
 
     
 
@@ -77,7 +80,10 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
     
     this->db.ExecSQLcmd(sqlcmd);
     
-    
+    sprintf(logmessage,"Produttore %s ha aggiunto un prodotto",produttore);
+    sprintf(dominio,"produttore");
+    sprintf(funzione,"Vendita");
+    log2db(logmessage,produttore,db,dominio,funzione);
     sprintf(key,"Risultato");
 
     
@@ -97,8 +103,12 @@ void ServerP::rimuoviProdotto( int block, redisReply *reply){
     char idProdotto[100];
     char key[100];
     char sqlcmd[1000];
+    char logmessage[1000];
+    char dominio[100];
+    char funzione[100];
     bool exist=false;
     bool buy=false;
+    bool isProduttore=true;
     
 
 
@@ -124,7 +134,7 @@ void ServerP::rimuoviProdotto( int block, redisReply *reply){
 
     if (!exist){
         sprintf(key,"Risultato");
-        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto NON esiste");
+        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Il prodotto non esiste");
         assertReply(this->c2r, reply);
         freeReplyObject(ret);
         return;
@@ -134,27 +144,54 @@ void ServerP::rimuoviProdotto( int block, redisReply *reply){
     // Esecuzione della query e controllo del risultato
     res = db.ExecSQLtuples(sqlcmd);
     if (res != NULL && PQntuples(res) > 0) {
-        buy = true; // Se la query restituisce almeno una riga, il prodotto esiste
+        buy = true; // Se la query restituisce almeno una riga, il prodotto è stato acquistato
         PQclear(res);
     }
 
     if (buy){
         sprintf(key,"Risultato");
-        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto e' stato gia' acquistato... ");
+        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Il prodotto è stato gia' acquistato");
         assertReply(this->c2r, reply);
         freeReplyObject(ret);
         return;
     }
-    sprintf(sqlcmd,  "DELETE FROM Prodotto p,Produttore pr WHERE p.produttore=pr.id and pr.id=\'%s\' and p.id=\'%s\'",produttore,idProdotto);
+
+    sprintf(sqlcmd, "SELECT * FROM Prodotto p WHERE  p.produttore=\'%s\' and p.id=\'%s\';",produttore,idProdotto);
+
+    // Esecuzione della query e controllo del risultato
+    res = db.ExecSQLtuples(sqlcmd); 
+
+    if (res != NULL && PQntuples(res) > 0) {   
+        if (produttore==PQgetvalue(res, 0, PQfnumber(res, "produttore"))){
+            isProduttore = false; 
+        }
+        PQclear(res);
+    }
+
+    if (!isProduttore){
+        sprintf(key,"Risultato");
+        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Non puoi eliminare prodotti altrui");
+        assertReply(this->c2r, reply);
+        freeReplyObject(ret);
+        return;
+    }
+
+
+    sprintf(sqlcmd,  "DELETE FROM Prodotto p WHERE  p.id=\'%s\';",idProdotto);
     // cout << sqlcmd << endl;
     
-    this->db.ExecSQLcmd(sqlcmd);
+    db.ExecSQLcmd(sqlcmd);
     
-    
+    sprintf(logmessage,"Produttore %s ha rimosso prodotto: %s",produttore,idProdotto);
+    sprintf(dominio,"produttore");
+    sprintf(funzione,"Rimozione");
+    log2db(logmessage,produttore,db,dominio,funzione);
+
+
     sprintf(key,"Risultato");
 
     
-    ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Rimosso");
+    ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Prodotto rimosso");
     assertReply(this->c2r, ret);
     freeReplyObject(ret);
 }
