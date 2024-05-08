@@ -14,6 +14,13 @@ int main(){
     while(1){
         cmd_reply = server.readCommandRedis(block);
         // cout << cmd_reply.cmd;
+        /*
+        if (cmd_reply.cmd =="GetNonConsegnati"){
+            
+            server.getNonConsegnati(block,cmd_reply.reply);
+            cout<<"Operazione completata: ";
+        }
+        */
         if (cmd_reply.cmd =="Consegna"){
             
             server.consegnaProdotto(block,cmd_reply.reply);

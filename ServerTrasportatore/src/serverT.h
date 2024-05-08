@@ -21,6 +21,7 @@ public:
     Cmd_Reply readCommandRedis(int block);
     
     void consegnaProdotto(int block,redisReply *reply);
+    // void getNonConsegnati(int block,redisReply *reply);
 
 private: 
     redisContext *c2r;

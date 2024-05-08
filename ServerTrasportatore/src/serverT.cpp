@@ -54,8 +54,8 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
     char dominio[100];
     char funzione[100];
     bool exist=false;
-    bool isTrasportatore=false;
-    
+    bool isTrasportatore=true;
+    bool consegnato = false;
 
 
     k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
@@ -93,7 +93,7 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
     res = db.ExecSQLtuples(sqlcmd);
     if (res != NULL && PQntuples(res) > 0) {
         if (trasportatore==PQgetvalue(res, 0, PQfnumber(res, "trasportatore"))){
-            isTrasportatore = true; 
+            isTrasportatore = false; 
         }
         PQclear(res);
     }
@@ -106,6 +106,24 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
         return;
     }
 
+    // Costruzione della query SQL
+    sprintf(sqlcmd, "SELECT * FROM Acquisto WHERE id = '%s' and consegnato = true;", idAcquisto);
+
+    // Esecuzione della query e controllo del risultato
+    res = db.ExecSQLtuples(sqlcmd);
+    if (res != NULL && PQntuples(res) > 0) {
+        consegnato = true; // Se la query restituisce almeno una riga, il prodotto esiste
+        PQclear(res);
+    }
+
+    if (consegnato){
+        sprintf(key,"Risultato");
+        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto e' stato gia' consegnato... ");
+        assertReply(this->c2r, reply);
+        freeReplyObject(ret);
+        return;
+    }
+
     sprintf(sqlcmd, "UPDATE Acquisto SET consegnato = true, istConsegna = CURRENT_TIMESTAMP WHERE id ='%s'",idAcquisto);
     
     this->db.ExecSQLcmd(sqlcmd);
@@ -113,13 +131,51 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
     
     sprintf(key,"Risultato");
 
-    sprintf(logmessage,"Trasportatore %s ha effettuato la consegna dell' acquisto: %s",trasportatore,idAcquisto);
+    sprintf(logmessage,"Trasportatore %s ha effettuato la consegna di acquisto: %s",trasportatore,idAcquisto);
     sprintf(dominio,"trasportatore");
     sprintf(funzione,"Consegna");
-    log2db(logmessage,trasportatore,db,dominio,funzione);
+    int id_trasportatore = atoi(trasportatore);
+    log2db(logmessage, id_trasportatore, db, dominio, funzione);
+
     
     ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Consegnato");
     assertReply(this->c2r, ret);
     freeReplyObject(ret);
 
 }
+
+/*
+void ServerT::getNonConsegnati(int block,redisReply *reply){    
+    int k,i;
+    redisReply *ret;
+    PGresult *res;
+
+    char trasportatore[100];
+    int prodottiNonConsegnati[100];
+    char key[100];
+    char sqlcmd[1000];
+
+    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    
+    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+    
+    ReadStreamMsgVal(reply, k, i, 3, trasportatore);
+
+    freeReplyObject(reply);
+
+    sprintf(sqlcmd, "SELECT id FROM Acquisto WHERE trasportatore = '%s' and consegnato = false ORDER BY istante LIMIT 100;", trasportatore);
+
+    // Esecuzione della query e controllo del risultato
+    res = db.ExecSQLtuples(sqlcmd);
+
+    for (int i=0; i<PQntuples(res); i++){
+        prodottiNonConsegnati[i] = atoi(PQgetvalue(res, i, PQfnumber(res, "id")));
+    }
+
+    sprintf(key,"Risultato");
+    ret = RedisCommand(this->c2r,"XADD %s * %s %p",this->WRITE_STREAM, key, prodottiNonConsegnati);
+    assertReply(this->c2r, reply);
+    freeReplyObject(ret);
+
+}
+*/
