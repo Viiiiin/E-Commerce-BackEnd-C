@@ -86,7 +86,7 @@ int ServerC::acquistaProdotto( int block, redisReply *reply){
     bool buy = false;
 
     char idProdotto[100];
-    char idCostumer[100];
+    char costumer[100];
     char key[100];
     char sqlcmd[1000]; 
     char logmessage[1000];
@@ -100,7 +100,7 @@ int ServerC::acquistaProdotto( int block, redisReply *reply){
     i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
 
     ReadStreamMsgVal(reply, k, i, 2, idProdotto);
-    ReadStreamMsgVal(reply, k, i, 4, idCostumer);
+    ReadStreamMsgVal(reply, k, i, 4, costumer);
     
     freeReplyObject(reply);
 
@@ -148,17 +148,17 @@ int ServerC::acquistaProdotto( int block, redisReply *reply){
         return 3;
     }
 
-    sprintf(sqlcmd, "INSERT INTO Acquisto (istante, costumer, prodotto, trasportatore, consegnato, istConsegna) VALUES (DEFAULT, \'%s\', \'%s\', \'%s\', 'false', NULL) ON CONFLICT DO NOTHING", idCostumer, idProdotto, idTrasportatore);
+    sprintf(sqlcmd, "INSERT INTO Acquisto (istante, costumer, prodotto, trasportatore, consegnato, istConsegna) VALUES (DEFAULT, \'%s\', \'%s\', \'%s\', 'false', NULL) ON CONFLICT DO NOTHING", costumer, idProdotto, idTrasportatore);
     db.ExecSQLcmd(sqlcmd);
     
-    sprintf(logmessage,"Costumer %s ha acquistato il prodotto: %s",idCostumer, idProdotto);
+    sprintf(logmessage,"Costumer %s ha acquistato il prodotto: %s", costumer, idProdotto);
     sprintf(dominio,"costumer");
     sprintf(funzione,"Acquisto");
-    log2db(logmessage,1,db,dominio,funzione);
+    int id_costumer = atoi(costumer);
+    log2db(logmessage, id_costumer, db, dominio, funzione);
 
     sprintf(key,"Risultato");
     
-
     ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Acquistato");
     assertReply(this->c2r, reply);
     freeReplyObject(ret);
