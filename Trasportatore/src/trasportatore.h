@@ -15,6 +15,7 @@ class Trasportatore {
         ); 
 
         string consegnaProdotto(int idAcquisto);
+        // int* getNonConsegnati();
 
     private: 
         redisContext *c2r;
