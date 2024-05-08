@@ -1,4 +1,3 @@
-
 -- database already exists
 
 \c :dbname 
@@ -36,7 +35,7 @@ create domain VarType as double precision ;
 -- create domain VarType as int ;
 
 
-CREATE TYPE DomainType AS ENUM ('costumer', 'fornitore', 'trasportatore');
+CREATE TYPE DomainType AS ENUM ('costumer', 'produttore', 'trasportatore');
 
 
 
@@ -109,7 +108,8 @@ CREATE TABLE IF NOT EXISTS Acquisto(
 INSERT INTO nomefun (nome) VALUES
     ('Consegna'),
     ('Acquisto'),
-    ('Vendita');
+    ('Vendita'),
+    ('Rimozione');
 
 
 INSERT INTO Trasportatore (nome, sede) VALUES 
@@ -131,8 +131,8 @@ VALUES
     ('Calzaturificio Italiano S.p.A.', ('Corso Italia', '20', '50123')),
     ('Maglieria Moda S.r.l.', ('Via Roma', '30', '10100')),
     ('Fabbri Abbigliamento S.p.A.', ('Via Venezia', '40', '30100'));
-
-
+	
+/*
 INSERT INTO Prodotto (produttore, nome, descrizione, prezzo) 
 VALUES 
     (1, 'Laptop', 'Laptop con schermo da 15 pollici', ROW('EUR', 99999)),
@@ -142,3 +142,4 @@ VALUES
 	(2, 'Tablet', 'Tablet con schermo da 10 pollici', ROW('USD', 49999)),
     (3, 'Cuffie Bluetooth', 'Cuffie senza fili con cancellazione del rumore', ROW('USD', 14999)),
     (1, 'Monitor', 'Monitor da 27 pollici con risoluzione 4K', ROW('EUR', 79999));
+*/
