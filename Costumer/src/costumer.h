@@ -9,7 +9,7 @@ using namespace std;
 
 class Costumer {
 public:
-    Costumer(int id, const char *nome, const char *cognome);
+    Costumer(int id);
     string acquistaProdotto(int prod);
 
 private:

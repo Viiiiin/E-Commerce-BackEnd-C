@@ -1,14 +1,15 @@
 // Effettua richiesta al server di aggiungere un prodotto
 #include "costumer.h"
 
-Costumer::Costumer(int id, const char *nome, const char *cognome)
+Costumer::Costumer(int id)
 {
     this->id = id;
-    this->nome = nome;
-    this->cognome = cognome;
     this->READ_STREAM = "stream_costumer_1";
     this->WRITE_STREAM = "stream_costumer_2";
     this->c2r = redisConnect("localhost", 6379);
+
+    /*
+
     redisReply *reply;
 
     // delete stream if it exists
@@ -19,6 +20,8 @@ Costumer::Costumer(int id, const char *nome, const char *cognome)
     reply = RedisCommand(c2r, "DEL %s", WRITE_STREAM);
     assertReply(c2r, reply);
     dumpReply(reply, 0);
+
+    */
 
     /* Create streams/groups */
     initStreams(this->c2r, this->READ_STREAM);
