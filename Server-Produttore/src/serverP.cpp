@@ -83,7 +83,8 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
     sprintf(logmessage,"Produttore %s ha aggiunto un prodotto",produttore);
     sprintf(dominio,"produttore");
     sprintf(funzione,"Vendita");
-    log2db(logmessage,produttore,db,dominio,funzione);
+    int id_produttore = atoi(produttore);
+    log2db(logmessage,id_produttore,db,dominio,funzione);
     sprintf(key,"Risultato");
 
     
@@ -185,7 +186,8 @@ void ServerP::rimuoviProdotto( int block, redisReply *reply){
     sprintf(logmessage,"Produttore %s ha rimosso prodotto: %s",produttore,idProdotto);
     sprintf(dominio,"produttore");
     sprintf(funzione,"Rimozione");
-    log2db(logmessage,produttore,db,dominio,funzione);
+    int id_produttore = atoi(produttore);
+    log2db(logmessage,id_produttore,db,dominio,funzione);
 
 
     sprintf(key,"Risultato");
