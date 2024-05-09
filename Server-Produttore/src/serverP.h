@@ -26,6 +26,7 @@ class ServerP {
         void rimuoviProdotto(int block, redisReply *reply);
    
     private: 
+        int monitor(char *idProdotto, char *produttore);
         const char *nome;
         redisContext *c2r;
         Con2DB db;
