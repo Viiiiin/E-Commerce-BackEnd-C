@@ -40,34 +40,13 @@ Cmd_Reply ServerT::readCommandRedis(int block){
     return cmd_reply;
 }
 
-
-void ServerT::consegnaProdotto(int block,redisReply *reply){    
-    int k,i;
-    redisReply *ret;
-    PGresult *res;
-
-    char trasportatore[100];
-    char idAcquisto[100];
-    char key[100];
-    char sqlcmd[1000];
-    char logmessage[1000];
-    char dominio[100];
-    char funzione[100];
+int ServerT::monitor(char *idAcquisto, char *trasportatore){
     bool exist=false;
     bool isTrasportatore=true;
     bool consegnato = false;
-
-
-    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
-    
-    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
-
-    
-    ReadStreamMsgVal(reply, k, i, 3, trasportatore);
-    ReadStreamMsgVal(reply, k, i, 5, idAcquisto);
-    
-    cout<<"trasportatore";
-    freeReplyObject(reply);
+    char key[100];
+    redisReply *ret;
+    PGresult *res;
 
     sprintf(sqlcmd, "SELECT 1 FROM Acquisto WHERE id = '%s';", idAcquisto);
 
@@ -81,9 +60,9 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
     if (!exist){
         sprintf(key,"Risultato");
         ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Non esiste acquisto con questo id");
-        assertReply(this->c2r, reply);
+        assertReply(this->c2r, ret);
         freeReplyObject(ret);
-        return;
+        return 1;
     }
 
     
@@ -101,9 +80,9 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
     if (!isTrasportatore){
         sprintf(key,"Risultato");
         ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Il trasportatore incaricato è diverso ");
-        assertReply(this->c2r, reply);
+        assertReply(this->c2r, ret);
         freeReplyObject(ret);
-        return;
+        return 1;
     }
 
     // Costruzione della query SQL
@@ -119,10 +98,40 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
     if (consegnato){
         sprintf(key,"Risultato");
         ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto e' stato gia' consegnato... ");
-        assertReply(this->c2r, reply);
+        assertReply(this->c2r, ret);
         freeReplyObject(ret);
-        return;
+        return 1;
     }
+    return 0; 
+}
+void ServerT::consegnaProdotto(int block,redisReply *reply){    
+    int k,i;
+    redisReply *ret;
+    PGresult *res;
+
+    char trasportatore[100];
+    char idAcquisto[100];
+    char key[100];
+    char sqlcmd[1000];
+    char logmessage[1000];
+    char dominio[100];
+    char funzione[100];
+
+
+
+    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    
+    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+
+    
+    ReadStreamMsgVal(reply, k, i, 3, trasportatore);
+    ReadStreamMsgVal(reply, k, i, 5, idAcquisto);
+    
+    freeReplyObject(reply);
+
+   if(monitor()==1){
+    
+   }
 
     sprintf(sqlcmd, "UPDATE Acquisto SET consegnato = true, istConsegna = CURRENT_TIMESTAMP WHERE id ='%s'",idAcquisto);
     
