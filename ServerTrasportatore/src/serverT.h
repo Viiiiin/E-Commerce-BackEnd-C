@@ -24,6 +24,7 @@ public:
     // void getNonConsegnati(int block,redisReply *reply);
 
 private: 
+    int monitor(char* idAcquisto,char *trasportatore);
     redisContext *c2r;
     Con2DB db; // Declare a member for con2DB
     const char *nome;
