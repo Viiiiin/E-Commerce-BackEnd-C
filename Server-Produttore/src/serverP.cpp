@@ -95,35 +95,14 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
 
 
 }
-void ServerP::rimuoviProdotto( int block, redisReply *reply){
-    int k,i;
-    redisReply *ret;
-    PGresult *res;
 
-    char produttore[100];
-    char idProdotto[100];
-    char key[100];
-    char sqlcmd[1000];
-    char logmessage[1000];
-    char dominio[100];
-    char funzione[100];
+int ServerP::monitor(char *idProdotto, char *produttore){
     bool exist=false;
     bool buy=false;
     bool isProduttore=true;
-    
-
-
-    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
-    
-    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
-
-    
-    ReadStreamMsgVal(reply, k, i, 3, produttore);
-    ReadStreamMsgVal(reply, k, i, 5, idProdotto);
-    
-    
-    freeReplyObject(reply);
-
+    char key[100];
+    PGresult *res;
+    redisReply *ret;
     sprintf(sqlcmd, "SELECT 1 FROM Prodotto WHERE id = '%s';", idProdotto);
 
     // Esecuzione della query e controllo del risultato
@@ -136,9 +115,9 @@ void ServerP::rimuoviProdotto( int block, redisReply *reply){
     if (!exist){
         sprintf(key,"Risultato");
         ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Il prodotto non esiste");
-        assertReply(this->c2r, reply);
+        assertReply(this->c2r, ret);
         freeReplyObject(ret);
-        return;
+        return 1;
     }
     sprintf(sqlcmd, "SELECT * FROM Acquisto WHERE prodotto = '%s';", idProdotto);
 
@@ -152,9 +131,9 @@ void ServerP::rimuoviProdotto( int block, redisReply *reply){
     if (buy){
         sprintf(key,"Risultato");
         ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Il prodotto è stato gia' acquistato");
-        assertReply(this->c2r, reply);
+        assertReply(this->c2r, ret);
         freeReplyObject(ret);
-        return;
+        return 1;
     }
 
     sprintf(sqlcmd, "SELECT * FROM Prodotto p WHERE  p.produttore=\'%s\' and p.id=\'%s\';",produttore,idProdotto);
@@ -172,11 +151,41 @@ void ServerP::rimuoviProdotto( int block, redisReply *reply){
     if (!isProduttore){
         sprintf(key,"Risultato");
         ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Non puoi eliminare prodotti altrui");
-        assertReply(this->c2r, reply);
+        assertReply(this->c2r, ret);
         freeReplyObject(ret);
+        return 1;
+    }
+    return 0;
+}
+void ServerP::rimuoviProdotto( int block, redisReply *reply){
+    int k,i;
+    redisReply *ret;
+
+
+    char produttore[100];
+    char idProdotto[100];
+    char key[100];
+    char sqlcmd[1000];
+    char logmessage[1000];
+    char dominio[100];
+    char funzione[100];
+
+
+    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    
+    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+
+    
+    ReadStreamMsgVal(reply, k, i, 3, produttore);
+    ReadStreamMsgVal(reply, k, i, 5, idProdotto);
+    
+    
+    freeReplyObject(reply);
+
+   
+    if (monitor(idProdotto,produttore)==1){
         return;
     }
-
 
     sprintf(sqlcmd,  "DELETE FROM Prodotto p WHERE  p.id=\'%s\';",idProdotto);
     // cout << sqlcmd << endl;
