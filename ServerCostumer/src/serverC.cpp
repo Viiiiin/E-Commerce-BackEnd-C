@@ -53,7 +53,7 @@ char* ServerC::assegnaTrasportatore(){
     PGresult *res;
     char* result;
     char sqlcmd[1000]; 
-    sprintf(sqlcmd, "SELECT t.id AS idTrasportatore FROM Trasportatore t WHERE t.id NOT IN (SELECT a.trasportatore FROM Acquisto a);");
+    sprintf(sqlcmd, "SELECT t.id AS idTrasportatore FROM Trasportatore t WHERE t.id NOT IN (SELECT a.trasportatore FROM Acquisto a) ORDER BY t.nome ;");
     res = db.ExecSQLtuples(sqlcmd);
     if (res != NULL && PQntuples(res) > 0 ) {
         result = PQgetvalue(res, 0, PQfnumber(res, "idTrasportatore"));
@@ -78,13 +78,56 @@ char* ServerC::assegnaTrasportatore(){
 }
 
 
-int ServerC::acquistaProdotto( int block, redisReply *reply){
-    int k,i;
+int ServerC::monitor(char *idProdotto){
+    bool exist=false;
+    bool buy=false;
+    char key[100];
     redisReply *ret;
     PGresult *res;
-    bool exist = false;
-    bool buy = false;
 
+    // Costruzione della query SQL
+    sprintf(sqlcmd, "SELECT * FROM Prodotto WHERE id = '%s';", idProdotto);
+
+    // Esecuzione della query e controllo del risultato
+    res = db.ExecSQLtuples(sqlcmd);
+    if (res != NULL && PQntuples(res) > 0) {
+        exist = true; // Se la query restituisce almeno una riga, il prodotto esiste
+        PQclear(res);
+    }
+
+    if (!exist){
+        sprintf(key,"Risultato");
+        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto NON esiste... ");
+        assertReply(this->c2r, ret);
+        freeReplyObject(ret);
+        return 1;
+    }
+
+    // Costruzione della query SQL
+    sprintf(sqlcmd, "SELECT * FROM Acquisto WHERE prodotto = '%s';", idProdotto);
+
+    // Esecuzione della query e controllo del risultato
+    res = db.ExecSQLtuples(sqlcmd);
+    if (res != NULL && PQntuples(res) > 0) {
+        buy = true; // Se la query restituisce almeno una riga, il prodotto esiste
+        PQclear(res);
+    }
+
+    if (buy){
+        sprintf(key,"Risultato");
+        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto e' stato gia' acquistato... ");
+        assertReply(this->c2r, ret);
+        freeReplyObject(ret);
+        return 1;
+    }
+
+    return 0;
+}
+
+
+void ServerC::acquistaProdotto( int block, redisReply *reply){
+    int k,i;
+    redisReply *ret;
     char idProdotto[100];
     char costumer[100];
     char key[100];
@@ -104,40 +147,8 @@ int ServerC::acquistaProdotto( int block, redisReply *reply){
     
     freeReplyObject(reply);
 
-    // Costruzione della query SQL
-    sprintf(sqlcmd, "SELECT * FROM Prodotto WHERE id = '%s';", idProdotto);
-
-    // Esecuzione della query e controllo del risultato
-    res = db.ExecSQLtuples(sqlcmd);
-    if (res != NULL && PQntuples(res) > 0) {
-        exist = true; // Se la query restituisce almeno una riga, il prodotto esiste
-        PQclear(res);
-    }
-
-    if (!exist){
-        sprintf(key,"Risultato");
-        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto NON esiste... ");
-        assertReply(this->c2r, reply);
-        freeReplyObject(ret);
-        return 1;
-    }
-
-    // Costruzione della query SQL
-    sprintf(sqlcmd, "SELECT * FROM Acquisto WHERE prodotto = '%s';", idProdotto);
-
-    // Esecuzione della query e controllo del risultato
-    res = db.ExecSQLtuples(sqlcmd);
-    if (res != NULL && PQntuples(res) > 0) {
-        buy = true; // Se la query restituisce almeno una riga, il prodotto esiste
-        PQclear(res);
-    }
-
-    if (buy){
-        sprintf(key,"Risultato");
-        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Il prodotto e' stato gia' acquistato... ");
-        assertReply(this->c2r, reply);
-        freeReplyObject(ret);
-        return 2;
+    if (monitor(idProdotto)==1){
+        return;
     }
 
     char* source;
@@ -145,7 +156,11 @@ int ServerC::acquistaProdotto( int block, redisReply *reply){
     source = assegnaTrasportatore();
     strcpy(idTrasportatore, source);
     if (idTrasportatore == NULL){
-        return 3;
+        sprintf(key,"Risultato");
+        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Errore nell'assegnazione del trasportatore... ");
+        assertReply(this->c2r, reply);
+        freeReplyObject(ret);
+        return;
     }
 
     sprintf(sqlcmd, "INSERT INTO Acquisto (istante, costumer, prodotto, trasportatore, consegnato, istConsegna) VALUES (DEFAULT, \'%s\', \'%s\', \'%s\', 'false', NULL) ON CONFLICT DO NOTHING", costumer, idProdotto, idTrasportatore);
@@ -163,7 +178,7 @@ int ServerC::acquistaProdotto( int block, redisReply *reply){
     assertReply(this->c2r, reply);
     freeReplyObject(ret);
 
-    return 0;
+    return;
 
 }
 
