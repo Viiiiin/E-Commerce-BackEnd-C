@@ -107,7 +107,6 @@ int ServerT::monitor(char *idAcquisto, char *trasportatore){
 void ServerT::consegnaProdotto(int block,redisReply *reply){    
     int k,i;
     redisReply *ret;
-    PGresult *res;
 
     char trasportatore[100];
     char idAcquisto[100];
@@ -129,7 +128,7 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
     
     freeReplyObject(reply);
 
-   if(monitor()==1){
+   if(monitor(idAcquisto, trasportatore)==1){
     
    }
 
