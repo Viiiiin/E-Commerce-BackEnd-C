@@ -25,11 +25,13 @@ int main(){
     int i=1;
     int x=0;
     Trasportatore trasp(1, "BARTOLINI");
-    while(x<100){
+    while(x<10){
         std::random_device rd;
         std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(1, 14);
+        std::uniform_int_distribution<> dis(100, 150);
         i = dis(gen);
+        cout << "Id estratto: ";
+        cout << i << endl;
         res = trasp.consegnaProdotto(i);
         cout << res << endl;
         x++;
