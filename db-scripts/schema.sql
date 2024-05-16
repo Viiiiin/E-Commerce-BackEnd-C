@@ -59,11 +59,18 @@ CREATE TABLE IF NOT EXISTS LogTable (
         PRIMARY KEY (nanosec, id, vardomain),
         FOREIGN KEY(fun) REFERENCES nomefun(nome));
         
-CREATE TABLE IF NOT EXISTS LogMetrics(
+CREATE TABLE IF NOT EXISTS LogPerformace(
 		id serial PRIMARY KEY,
 		responseTime bigint NOT NULL,
 		througput int NOT NULL,
-		istante TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+		istante TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE IF NOT EXISTS LogScalability(
+		id serial PRIMARY KEY,
+		cpuUsage float NOT NULL,
+		memoryusage float NOT NULL,
+		istante TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE IF NOT EXISTS Costumer(
