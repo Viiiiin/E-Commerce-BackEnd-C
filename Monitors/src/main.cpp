@@ -20,7 +20,7 @@ int main(int argc,char *argv[]){
     } else if (flag == "--monitor=c") {
         monitorConsegne();
     }else {
-        cerr << "Flag non riconosciuta. Usa --funzione <a|f|p|s>" << endl;
+        cerr << "Flag non riconosciuta. Usa --funzione <a|f|p|s|c>" << endl;
         return 1;
     }
 
