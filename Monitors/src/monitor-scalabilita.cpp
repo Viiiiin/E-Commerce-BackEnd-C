@@ -1,11 +1,10 @@
-#include <iostream>
-#include "../../tools/src/main.h"
-#include "con2redis.h"
-#include "../../con2db/pgsql.h"
+#include "main.h"
+
+using namespace std;
 
 void log_scalability_metrics(Con2DB db, double cpu_usage, double memory_usage) {
     char sqlcmd[1000]; 
-    sprintf(sqlcmd,  "INSERT INTO LogScalability VALUES (DEFAULT,\'%s\' ,\'%s\', DEFAULT) ON CONFLICT DO NOTHING;",cpu_usage,memory_usage);
+    sprintf(sqlcmd,  "INSERT INTO LogScalability VALUES (DEFAULT,\'%f\' ,\'%f\', DEFAULT) ON CONFLICT DO NOTHING;",cpu_usage,memory_usage);
     db.ExecSQLcmd(sqlcmd);
 }
 
@@ -19,7 +18,7 @@ double measure_memory_usage() {
     return static_cast<double>(rand() % 100);  // Simulated memory usage percentage
 }
 
-int main() {
+void monitorScalabilita() {
     // Connect to db
     Con2DB db("localhost", "5432", "ecommerce", "47002", "db_ecommerce"); 
 
@@ -32,12 +31,12 @@ int main() {
         double memory_usage = measure_memory_usage();
         cout << "Memory Usage: " << memory_usage << "%" << endl;
 
-        // Log metrics to Redis
-        log_scalability_metrics(context, cpu_usage, memory_usage);
+        // Log metrics to database
+        log_scalability_metrics(db, cpu_usage, memory_usage);
 
         // Sleep for a second before the next measurement
         msleep(rand()%1000);
     }
 
-    return 0;
+    
 }
