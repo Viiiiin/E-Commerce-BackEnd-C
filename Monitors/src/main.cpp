@@ -3,7 +3,7 @@
 int main(int argc,char *argv[]){
 	
     if (argc != 2) {
-        cerr << "Uso: " << argv[0] << " --monitor <a|f|p|s>" << endl;
+        cerr << "Uso: " << argv[0] << " --monitor <a|f|p|s|c>" << endl;
         return 1;
     }
 
@@ -17,6 +17,8 @@ int main(int argc,char *argv[]){
         monitorPrestazioni();
     } else if (flag == "--monitor=s") {
         monitorScalabilita();
+    } else if (flag == "--monitor=c") {
+        monitorConsegne();
     }else {
         cerr << "Flag non riconosciuta. Usa --funzione <a|f|p|s>" << endl;
         return 1;

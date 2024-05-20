@@ -14,3 +14,5 @@ void monitorFunzionalita();
 void monitorPrestazioni();
 
 void monitorScalabilita();
+
+void monitorConsegne();
