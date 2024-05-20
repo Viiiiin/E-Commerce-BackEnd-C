@@ -31,11 +31,6 @@ void monitorConsegne(){
         PQclear(res);
 
     } else {
-        if (res != NULL) {
-            cerr << "Errore nell'esecuzione della query: " << PQresultErrorMessage(res) << endl;
-            PQclear(res);
-        } else {
-            cerr << "Errore nell'esecuzione della query: la query ha restituito NULL" << endl;
-        }
+        cout << "Nessuna acquisto rimasto non consegnato da piu di 2 giorni..." << endl; 
     }
 }
