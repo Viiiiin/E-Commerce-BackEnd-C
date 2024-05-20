@@ -1,12 +1,11 @@
 #include "trasportatore.h"
 
 Trasportatore:: Trasportatore (
-    const int id,
-    const char *ragioneSociale   
+    const int id
 )
 
 { 
-    this->ragioneSociale= ragioneSociale;
+
     this->id=id;
     this->READ_STREAM = "stream_trasportatore_1";
     this->WRITE_STREAM = "stream_trasportatore_2";
