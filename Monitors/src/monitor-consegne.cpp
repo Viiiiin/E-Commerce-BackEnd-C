@@ -7,7 +7,7 @@ void monitorConsegne(){
     char sqlcmd[1000]; 
     PGresult *res;
 
-    sprintf(sqlcmd, "SELECT prodotto FROM Acquisto WHERE consegnato = false AND istante > DATE_SUB(CURRENT_TIMESTAMP(), INTERVAL 2 DAY);");
+    sprintf(sqlcmd, "SELECT prodotto FROM Acquisto WHERE consegnato = false AND istante < CURRENT_TIMESTAMP - INTERVAL '2 days';");
 
     // Esecuzione della query e controllo del risultato
     res = db.ExecSQLtuples(sqlcmd);
@@ -21,7 +21,7 @@ void monitorConsegne(){
         }
 
         // Stampa i prodotti memorizzati nell'array
-        cout << "Elenco di prodotti:" << endl;
+        cout << "I seguenti prodotti devono ancora essere consegnati:" << endl;
         for (int i = 0; i < numProdotti; ++i) {
             cout << listaProdotti[i] << endl;
         }
@@ -30,5 +30,12 @@ void monitorConsegne(){
 
         PQclear(res);
 
+    } else {
+        if (res != NULL) {
+            cerr << "Errore nell'esecuzione della query: " << PQresultErrorMessage(res) << endl;
+            PQclear(res);
+        } else {
+            cerr << "Errore nell'esecuzione della query: la query ha restituito NULL" << endl;
+        }
     }
 }
