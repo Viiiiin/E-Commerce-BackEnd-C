@@ -128,9 +128,7 @@ void ServerT::consegnaProdotto(int block,redisReply *reply){
     
     freeReplyObject(reply);
 
-   if(monitor(idAcquisto, trasportatore)==1){
-    
-   }
+   if(monitor(idAcquisto, trasportatore)==1){return;}
 
     sprintf(sqlcmd, "UPDATE Acquisto SET consegnato = true, istConsegna = CURRENT_TIMESTAMP WHERE id ='%s'",idAcquisto);
     
