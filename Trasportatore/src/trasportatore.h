@@ -10,8 +10,7 @@ using namespace std;
 class Trasportatore {
     public: 
         Trasportatore(
-            const int id,
-            const char *ragioneSociale
+            const int id
         ); 
 
         string consegnaProdotto(int idAcquisto);
@@ -21,7 +20,6 @@ class Trasportatore {
         redisContext *c2r;
         const char *READ_STREAM;
         const char *WRITE_STREAM;
-        const char *ragioneSociale;
         int id;
 };
 
