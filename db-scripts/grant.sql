@@ -7,6 +7,8 @@ GRANT ALL PRIVILEGES ON DATABASE :dbname to :username ;
 
 
 ALTER TABLE LogTable OWNER TO :username ;
+ALTER TABLE LogPerformance OWNER TO :username ;
+ALTER TABLE LogScalability OWNER TO :username ;
 ALTER TABLE nomefun OWNER TO :username ;
 ALTER TABLE Produttore OWNER TO :username ;
 ALTER TABLE Costumer OWNER TO :username ;
