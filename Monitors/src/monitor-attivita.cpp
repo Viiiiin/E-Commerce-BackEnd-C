@@ -33,7 +33,6 @@ while(1){
     sprintf(sqlcmd,"SELECT COUNT(*) AS Vendita  FROM LogTable WHERE fun='Vendita';");
     res = db.ExecSQLtuples(sqlcmd);
     countVendita=  atoi(PQgetvalue(res, 0, PQfnumber(res, "Vendita")));
-    cout <<countAcquisto;
     PQclear(res);
 
     // Ottengo il numero di Rimozioni effettuate
@@ -53,10 +52,11 @@ while(1){
     double percentVendita = (static_cast<double>(countVendita) / totalCount) * 100;
 
     // Output delle percentuali
-    std::cout << "Percentuale Acquisto: " << std::fixed << std::setprecision(2) << percentAcquisto << "%" << std::endl;
-    std::cout << "Percentuale Consegna: " << std::fixed << std::setprecision(2) << percentConsegna << "%" << std::endl;
-    std::cout << "Percentuale Rimozione: " << std::fixed << std::setprecision(2) << percentRimozione << "%" << std::endl;
-    std::cout << "Percentuale Vendita: " << std::fixed << std::setprecision(2) << percentVendita << "%" << std::endl;
+    cout << "Totale Operazioni: " << totalCount << endl;
+    cout << "Percentuale Acquisto: " << std::fixed << std::setprecision(2) << percentAcquisto << "%" << endl;
+    cout << "Percentuale Consegna: " << std::fixed << std::setprecision(2) << percentConsegna << "%" << endl;
+    cout << "Percentuale Rimozione: " << std::fixed << std::setprecision(2) << percentRimozione << "%" << endl;
+    cout << "Percentuale Vendita: " << std::fixed << std::setprecision(2) << percentVendita << "%" << endl;
     
     // Aspetta un minuto
     msleep(60000);
