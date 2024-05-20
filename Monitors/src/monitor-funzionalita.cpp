@@ -1,13 +1,8 @@
-#include "../../con2db/pgsql.h"
-
-#include <string>
-#include <iostream>
-#include <iomanip>
-#include "../../tools/src/main.h"
+#include "main.h"
 
 using namespace std;
 
-int main(){
+void monitorFunzionalita(){
     Con2DB db("localhost", "5432", "ecommerce", "47002", "db_ecommerce");
     char sqlcmd[1000]; 
     long nanoSecNow = get_nanos();
