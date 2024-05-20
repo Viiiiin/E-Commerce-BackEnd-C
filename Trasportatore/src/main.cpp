@@ -1,45 +1,3 @@
-#include "trasportatore.h"
-#include <string>
-#include <iostream>
-#include <random>
-
-using namespace std;
-
-int main(){  
-
-    /*  
-    string res;
-    Trasportatore trasp(1, "BARTOLINI");
-    int* prodottiNonConsegnati; 
-    prodottiNonConsegnati = trasp.getNonConsegnati();
-    int j = 0;
-    while (prodottiNonConsegnati[j] != -1 && j < 100) {
-        res = trasp.consegnaProdotto(prodottiNonConsegnati[j]);
-        cout << res << endl;
-        j++;
-    }
-    return 0;
-    */
-
-    string res;
-    int i=1;
-    int x=0;
-    Trasportatore trasp(1, "BARTOLINI");
-    while(x<10){
-        std::random_device rd;
-        std::mt19937 gen(rd());
-        std::uniform_int_distribution<> dis(100, 150);
-        i = dis(gen);
-        cout << "Id estratto: ";
-        cout << i << endl;
-        res = trasp.consegnaProdotto(i);
-        cout << res << endl;
-        x++;
-        cout << x << endl;
-    }
-    return 0;
-
-}
 
 #include "trasportatore.h"
 #include <string>
@@ -52,7 +10,7 @@ int main(){
 #include <sys/wait.h> // Libreria per la wait()
 using namespace std;
 
-void trasportatoreProcess(Trasportatore& trasp, long time, int numero_operazioni) {      
+void trasportatoreProcesso(Trasportatore& trasp, long time, int numero_operazioni) {      
     int x = 0;
     int i = 0;
     string res;
@@ -83,7 +41,7 @@ int main(int argc,char *argv[]){
 	
     while ((c = getopt(argc, argv, "r:t:n:")) != -1) {
         switch (c) {
-            case 'c':    
+            case 'r':    
               numero_trasportatori = atoi(optarg);
               break;
             case 't':    
@@ -101,7 +59,7 @@ int main(int argc,char *argv[]){
         pid_t pid = fork();
 
         if (pid == 0) { // Processo figlio
-            costumerProcesso(trasp,time_to_sleep,numero_operazioni);
+            trasportatoreProcesso(trasp,time_to_sleep,numero_operazioni);
             exit(0); // Termina il processo figlio dopo aver completato il lavoro
         } else if (pid < 0) { // Errore nella creazione del processo figlio
             cerr << "Errore nella fork()" << endl;
