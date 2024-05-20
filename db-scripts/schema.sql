@@ -59,7 +59,7 @@ CREATE TABLE IF NOT EXISTS LogTable (
         PRIMARY KEY (nanosec, id, vardomain),
         FOREIGN KEY(fun) REFERENCES nomefun(nome));
         
-CREATE TABLE IF NOT EXISTS LogPerformace(
+CREATE TABLE IF NOT EXISTS LogPerformance(
 		id serial PRIMARY KEY,
 		responseTime bigint NOT NULL,
 		througput int NOT NULL,
