@@ -13,25 +13,25 @@ struct Cmd_Reply{
     string cmd;
     redisReply *reply;
 };
+
 class ServerC {
-    public:
-        ServerC(const char *nome);
+public:
+    ServerC(const char *nome);
 
-        // Legge l' ultimo messaggio  inviato da client e ne ricava il comando
-        Cmd_Reply readCommandRedis(int block);
+    // Reads the last message sent by the client and extracts the command
+    Cmd_Reply readCommandRedis(int block);
 
-        // Legge le caratteristiche del prodotto da redis e salva prodotto nel database
-        void acquistaProdotto(int block,redisReply *reply);
-   
-    private: 
-        int monitor(char *idProdotto);
-        const char *nome;
-        redisContext *c2r;
-        const char *READ_STREAM;
-        const char *WRITE_STREAM;
-        Con2DB db;
-        char* assegnaTrasportatore();
+    // Reads the product characteristics from Redis and saves the product in the database
+    void acquistaProdotto(int block, redisReply *reply);
+
+private:
+    int monitor(char *idProdotto);
+    const char *nome;
+    redisContext *c2r;
+    const char *READ_STREAM;
+    const char *WRITE_STREAM;
+    Con2DB db;
+    char* assegnaTrasportatore();
 };
-
 
 #endif

@@ -1,19 +1,13 @@
-
-/*If you have a stream and multiple clients, and you want the stream to be partitioned or sharded across your clients, 
-so that each client will get a sub set of the messages arriving in a stream, you need a consumer group.*/
 #include "serverP.h"
 using namespace std;
 
-ServerP:: ServerP ( const char *nome
-)
+ServerP::ServerP(const char *nome)
     :db("localhost", "5432", "ecommerce", "47002", "db_ecommerce")
-
 { 
     this->nome = nome;
     this->READ_STREAM = "stream_produttore_2";
     this->WRITE_STREAM = "stream_produttore_1";
     this->c2r = redisConnect("localhost", 6379);
-
 
     /* Create streams/groups */
     initStreams(this->c2r, this->READ_STREAM);
@@ -21,7 +15,7 @@ ServerP:: ServerP ( const char *nome
 }
  
 Cmd_Reply ServerP::readCommandRedis(int block){
-    int i,k;
+    int i, k;
     char *cmd = new char[100];
     redisReply *reply;
     Cmd_Reply cmd_reply;
@@ -30,22 +24,21 @@ Cmd_Reply ServerP::readCommandRedis(int block){
     
     assertReply(this->c2r, reply);
 
-    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    k = ReadNumStreams(reply) - 1; // Take the last sent stream
     
-    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+    i = ReadStreamNumMsg(reply, k) - 1; // Last message of the last stream
 
     ReadStreamMsgVal(reply, k, i, 1, cmd);
     
     cmd_reply.cmd = cmd;
     cmd_reply.reply = reply;
 
-
     return cmd_reply;
 }
 
-// Legge le caratteristiche del prodotto da redis e salva prodotto nel database
-void ServerP::inserisciProdotto( int block, redisReply *reply){
-    int k,i;
+// Read the product characteristics from redis and save the product in the database
+void ServerP::inserisciProdotto(int block, redisReply *reply){
+    int k, i;
     redisReply *ret;
 
     char produttore[100];
@@ -59,12 +52,9 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
     char dominio[100];
     char funzione[100];
 
+    k = ReadNumStreams(reply) - 1; // Take the last sent stream
     
-
-
-    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
-    
-    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+    i = ReadStreamNumMsg(reply, k) - 1; // Last message of the last stream
 
     ReadStreamMsgVal(reply, k, i, 3, nome);
     ReadStreamMsgVal(reply, k, i, 5, descrizione);
@@ -74,93 +64,91 @@ void ServerP::inserisciProdotto( int block, redisReply *reply){
     
     freeReplyObject(reply);
     
-
-    sprintf(sqlcmd,  "INSERT INTO Prodotto VALUES (DEFAULT,\'%s\' ,\'%s\', \'%s\',ROW(\'%s\',\'%s\')) ON CONFLICT DO NOTHING;",produttore,nome,descrizione,valuta,prezzo);
-    // cout << sqlcmd << endl;
+    sprintf(sqlcmd,  "INSERT INTO Prodotto VALUES (DEFAULT, '%s', '%s', '%s', ROW('%s', '%s')) ON CONFLICT DO NOTHING;", produttore, nome, descrizione, valuta, prezzo);
+   
     
     this->db.ExecSQLcmd(sqlcmd);
     
-    sprintf(logmessage,"Produttore %s ha aggiunto un prodotto",produttore);
-    sprintf(dominio,"produttore");
-    sprintf(funzione,"Vendita");
+    sprintf(logmessage, "Produttore %s ha aggiunto un prodotto", produttore);
+    sprintf(dominio, "produttore");
+    sprintf(funzione, "Vendita");
     int id_produttore = atoi(produttore);
-    log2db(logmessage,id_produttore,db,dominio,funzione);
-    sprintf(key,"Risultato");
-
+    log2db(logmessage, id_produttore, db, dominio, funzione);
+    sprintf(key, "Risultato");
     
-    ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Aggiunto");
+    ret = RedisCommand(this->c2r, "XADD %s * %s %s", this->WRITE_STREAM, key, "Aggiunto");
     assertReply(this->c2r, ret);
     freeReplyObject(ret);
-    
-
-
 }
 
 int ServerP::monitor(char *idProdotto, char *produttore){
-    bool exist=false;
-    bool buy=false;
-    bool isProduttore=true;
+    bool exist = false;
+    bool buy = false;
+    bool isProduttore = true;
     char key[100];
     PGresult *res;
     redisReply *ret;
+    char sqlcmd[1000];
+    
     sprintf(sqlcmd, "SELECT 1 FROM Prodotto WHERE id = '%s';", idProdotto);
 
-    // Esecuzione della query e controllo del risultato
+    // Execute the query and check the result
     res = db.ExecSQLtuples(sqlcmd);
     if (res != NULL && PQntuples(res) > 0) {
-        exist = true; // Se la query restituisce almeno una riga, il prodotto esiste
+        exist = true; // If the query returns at least one row, the product exists
         PQclear(res);
     }
 
-    if (!exist){
-        sprintf(key,"Risultato");
-        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Il prodotto non esiste");
+    if (!exist) {
+        sprintf(key, "Risultato");
+        ret = RedisCommand(this->c2r, "XADD %s * %s %s", this->WRITE_STREAM, key, "ERRORE: Il prodotto non esiste");
         assertReply(this->c2r, ret);
         freeReplyObject(ret);
         return 1;
     }
+    
     sprintf(sqlcmd, "SELECT * FROM Acquisto WHERE prodotto = '%s';", idProdotto);
 
-    // Esecuzione della query e controllo del risultato
+    // Execute the query and check the result
     res = db.ExecSQLtuples(sqlcmd);
     if (res != NULL && PQntuples(res) > 0) {
-        buy = true; // Se la query restituisce almeno una riga, il prodotto è stato acquistato
+        buy = true; // If the query returns at least one row, the product has been purchased
         PQclear(res);
     }
 
-    if (buy){
-        sprintf(key,"Risultato");
-        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Il prodotto è stato gia' acquistato");
+    if (buy) {
+        sprintf(key, "Risultato");
+        ret = RedisCommand(this->c2r, "XADD %s * %s %s", this->WRITE_STREAM, key, "ERRORE: Il prodotto è stato gia' acquistato");
         assertReply(this->c2r, ret);
         freeReplyObject(ret);
         return 1;
     }
 
-    sprintf(sqlcmd, "SELECT * FROM Prodotto p WHERE  p.produttore=\'%s\' and p.id=\'%s\';",produttore,idProdotto);
+    sprintf(sqlcmd, "SELECT * FROM Prodotto p WHERE p.produttore = '%s' and p.id = '%s';", produttore, idProdotto);
 
-    // Esecuzione della query e controllo del risultato
+    // Execute the query and check the result
     res = db.ExecSQLtuples(sqlcmd); 
 
     if (res != NULL && PQntuples(res) > 0) {   
-        if (produttore==PQgetvalue(res, 0, PQfnumber(res, "produttore"))){
+        if (produttore == PQgetvalue(res, 0, PQfnumber(res, "produttore"))) {
             isProduttore = false; 
         }
         PQclear(res);
     }
 
-    if (!isProduttore){
-        sprintf(key,"Risultato");
-        ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "ERRORE: Non puoi eliminare prodotti altrui");
+    if (!isProduttore) {
+        sprintf(key, "Risultato");
+        ret = RedisCommand(this->c2r, "XADD %s * %s %s", this->WRITE_STREAM, key, "ERRORE: Non puoi eliminare prodotti altrui");
         assertReply(this->c2r, ret);
         freeReplyObject(ret);
         return 1;
     }
     return 0;
 }
-void ServerP::rimuoviProdotto( int block, redisReply *reply){
-    int k,i;
-    redisReply *ret;
 
+void ServerP::rimuoviProdotto(int block, redisReply *reply){
+    int k, i;
+    redisReply *ret;
 
     char produttore[100];
     char idProdotto[100];
@@ -170,39 +158,33 @@ void ServerP::rimuoviProdotto( int block, redisReply *reply){
     char dominio[100];
     char funzione[100];
 
-
-    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    k = ReadNumStreams(reply) - 1; // Take the last sent stream
     
-    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
-
+    i = ReadStreamNumMsg(reply, k) - 1; // Last message of the last stream
     
     ReadStreamMsgVal(reply, k, i, 3, produttore);
     ReadStreamMsgVal(reply, k, i, 5, idProdotto);
     
-    
     freeReplyObject(reply);
 
-   
-    if (monitor(idProdotto,produttore)==1){
+    if (monitor(idProdotto, produttore) == 1) {
         return;
     }
 
-    sprintf(sqlcmd,  "DELETE FROM Prodotto p WHERE  p.id=\'%s\';",idProdotto);
-    // cout << sqlcmd << endl;
+    sprintf(sqlcmd, "DELETE FROM Prodotto p WHERE p.id = '%s';", idProdotto);
+
     
     db.ExecSQLcmd(sqlcmd);
     
-    sprintf(logmessage,"Produttore %s ha rimosso prodotto: %s",produttore,idProdotto);
-    sprintf(dominio,"produttore");
-    sprintf(funzione,"Rimozione");
+    sprintf(logmessage, "Produttore %s ha rimosso prodotto: %s", produttore, idProdotto);
+    sprintf(dominio, "produttore");
+    sprintf(funzione, "Rimozione");
     int id_produttore = atoi(produttore);
-    log2db(logmessage,id_produttore,db,dominio,funzione);
+    log2db(logmessage, id_produttore, db, dominio, funzione);
 
-
-    sprintf(key,"Risultato");
-
+    sprintf(key, "Risultato");
     
-    ret = RedisCommand(this->c2r,"XADD %s * %s %s",this->WRITE_STREAM, key, "Prodotto rimosso");
+    ret = RedisCommand(this->c2r, "XADD %s * %s %s", this->WRITE_STREAM, key, "Prodotto rimosso");
     assertReply(this->c2r, ret);
     freeReplyObject(ret);
 }

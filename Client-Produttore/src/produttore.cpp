@@ -1,6 +1,6 @@
-// NOTA: InserisciProdotto come Rimuovi contengono parti di codice che è possibile rendere Funzione, inoltre dovrebbero restituire una stringa(messaggio ricevuto dal server)
 #include "produttore.h"
 
+// Constructor
 Produttore::Produttore(int id)
 {
     this->id = id; 
@@ -13,8 +13,7 @@ Produttore::Produttore(int id)
     initStreams(this->c2r, this->WRITE_STREAM);  
 }
 
-
-
+// Method to insert a product
 string Produttore::inserisciProdotto(const char *nome,const char *descrizione, Prezzo prezzo){
     char key0[100];
     char key1[100];
@@ -27,6 +26,7 @@ string Produttore::inserisciProdotto(const char *nome,const char *descrizione, P
     int k,i;
     redisReply *reply;
 
+    // Constructing Redis command for inserting a product
     sprintf(key0,"comando");
     sprintf(key1, "nome");
     sprintf(key2,"descrizione");
@@ -34,26 +34,28 @@ string Produttore::inserisciProdotto(const char *nome,const char *descrizione, P
     sprintf(key4,"valuta");
     sprintf(key5,"produttore");
 
-   
-
     reply= RedisCommand(this->c2r, "XADD %s * %s %s %s %s %s %s %s %d %s %s %s %d",this->WRITE_STREAM, key0, "Inserisci", key1, nome, key2, descrizione,key5,this->id,key4,prezzo.valuta ,key3,prezzo.prezzo);
 
+    // Check for the type of Redis reply
     assertReplyType(this->c2r,reply,REDIS_REPLY_STRING);
 
     freeReplyObject(reply);
 
+    // Read the reply from Redis
     reply = RedisCommand(this->c2r, "XREADGROUP GROUP diameter %d BLOCK %d COUNT 1 NOACK STREAMS %s >", this->id, block, this->READ_STREAM);
     
     assertReply(this->c2r, reply);
 
-    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    k = ReadNumStreams(reply) -1; // Get the index of the last stream
     
-    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+    i = ReadStreamNumMsg(reply, k) -1; // Get the index of the last message in the last stream
 
-    ReadStreamMsgVal(reply, k, i, 1, result);
+    ReadStreamMsgVal(reply, k, i, 1, result); // Read the value of the message
     freeReplyObject(reply);
     return result;
 }
+
+// Method to remove a product
 string Produttore::rimuoviProdotto(const int idProdotto){
     char key0[100];
     char key1[100];
@@ -63,28 +65,28 @@ string Produttore::rimuoviProdotto(const int idProdotto){
     int k,i;
     redisReply *reply;
 
+    // Constructing Redis command for removing a product
     sprintf(key0,"comando");
     sprintf(key1, "nome");
     sprintf(key2,"prodotto");
 
-   
-
     reply= RedisCommand(this->c2r, "XADD %s * %s %s %s %d %s %d",this->WRITE_STREAM, key0, "Rimuovi", key1, this->id, key2,idProdotto);
 
+    // Check for the type of Redis reply
     assertReplyType(this->c2r,reply,REDIS_REPLY_STRING);
 
     freeReplyObject(reply);
 
+    // Read the reply from Redis
     reply = RedisCommand(this->c2r, "XREADGROUP GROUP diameter %d BLOCK %d COUNT 1 NOACK STREAMS %s >", this->id, block, this->READ_STREAM);
     
     assertReply(this->c2r, reply);
 
-    k = ReadNumStreams(reply) -1; // prendo l'ultima stream inviata
+    k = ReadNumStreams(reply) -1; // Get the index of the last stream
     
-    i = ReadStreamNumMsg(reply, k) -1; // ultimo messaggio dell'ultima stream
+    i = ReadStreamNumMsg(reply, k) -1; // Get the index of the last message in the last stream
 
-    ReadStreamMsgVal(reply, k, i, 1, result);
+    ReadStreamMsgVal(reply, k, i, 1, result); // Read the value of the message
     freeReplyObject(reply);
     return result;
-   
 }

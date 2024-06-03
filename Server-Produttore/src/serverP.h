@@ -13,16 +13,18 @@ struct Cmd_Reply{
     string cmd;
     redisReply *reply;
 };
+
 class ServerP {
     public:
         ServerP(const char *nome);
 
-        // Legge l' ultimo messaggio  inviato da client e ne ricava il comando
+        // Reads the last message sent by the client and extracts the command
         Cmd_Reply readCommandRedis(int block);
 
-        // Legge le caratteristiche del prodotto da redis e salva prodotto nel database
-        void inserisciProdotto(int block,redisReply *reply);
+        // Reads the product characteristics from Redis and saves the product in the database
+        void inserisciProdotto(int block, redisReply *reply);
 
+        // Removes a product from the database
         void rimuoviProdotto(int block, redisReply *reply);
    
     private: 
@@ -34,6 +36,4 @@ class ServerP {
         const char *WRITE_STREAM;
 };
 
-
-
-#endif
+#endif // serverP_h

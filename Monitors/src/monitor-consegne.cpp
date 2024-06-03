@@ -9,28 +9,28 @@ void monitorConsegne(){
 
     sprintf(sqlcmd, "SELECT prodotto FROM Acquisto WHERE consegnato = false AND istante < CURRENT_TIMESTAMP - INTERVAL '2 days';");
 
-    // Esecuzione della query e controllo del risultato
+    // Execute the query and check the result
     res = db.ExecSQLtuples(sqlcmd);
     if (res != NULL && PQntuples(res) > 0) {        
         int numProdotti = PQntuples(res);
-        long *listaProdotti = new long[numProdotti]; // Array dinamico per memorizzare i prodotti
+        long *listaProdotti = new long[numProdotti]; // Dynamic array to store products
 
-        // Itera sui risultati e memorizza i prodotti nell'array
+        // Iterate over the results and store the products in the array
         for (int i = 0; i < numProdotti; ++i) {
             listaProdotti[i] = strtol(PQgetvalue(res, i, PQfnumber(res, "prodotto")), nullptr, 10);
         }
 
-        // Stampa i prodotti memorizzati nell'array
-        cout << "I seguenti prodotti devono ancora essere consegnati:" << endl;
+        // Print the products stored in the array
+        cout << "The following products have yet to be delivered:" << endl;
         for (int i = 0; i < numProdotti; ++i) {
             cout << listaProdotti[i] << endl;
         }
 
-        delete[] listaProdotti; // Liberare la memoria allocata per l'array
+        delete[] listaProdotti; // Free the memory allocated for the array
 
         PQclear(res);
 
     } else {
-        cout << "Nessuna acquisto rimasto non consegnato da piu di 2 giorni..." << endl; 
+        cout << "No purchases left undelivered for more than 2 days..." << endl; 
     }
 }

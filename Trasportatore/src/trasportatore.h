@@ -13,7 +13,9 @@ class Trasportatore {
             const int id
         ); 
 
+        // Delivery a product
         string consegnaProdotto(int idAcquisto);
+
         // int* getNonConsegnati();
 
     private: 
