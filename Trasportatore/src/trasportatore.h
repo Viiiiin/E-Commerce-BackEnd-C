@@ -16,7 +16,6 @@ class Trasportatore {
         // Delivery a product
         string consegnaProdotto(int idAcquisto);
 
-        // int* getNonConsegnati();
 
     private: 
         redisContext *c2r;

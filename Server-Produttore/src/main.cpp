@@ -12,7 +12,7 @@ int main(){
     cout << "Il Server dei Produttori sta ascoltando..." << endl;
     while(1){
         cmd_reply = server.readCommandRedis(block);
-        // cout << cmd_reply.cmd;
+
         cout<< cmd_reply.cmd;
         if (cmd_reply.cmd =="Inserisci"){
             
